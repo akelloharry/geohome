@@ -11,16 +11,27 @@ export default function HomePage() {
   const [filters, setFilters] = useState({})
   const [pin, setPin] = useState([34.7617, -0.0917])
   const [radius, setRadius] = useState(1000)
+  const [useRpc, setUseRpc] = useState(true)
 
   useEffect(() => {
     fetchNearby()
-  }, [pin, radius])
+  }, [pin, radius, useRpc])
 
   async function fetchNearby() {
-    // call Supabase RPC nearby_properties(lat, lng, radius)
     const lat = pin[1]
     const lng = pin[0]
-    const { data, error } = await supabase.rpc('nearby_properties', { lat, lng, radius })
+
+    if (useRpc) {
+      const { data, error } = await supabase.rpc('nearby_properties', { lat, lng, radius })
+      if (!error && data) {
+        setProperties(data)
+        return
+      }
+      console.warn('Supabase RPC nearby_properties unavailable, falling back to properties table:', error)
+      setUseRpc(false)
+    }
+
+    const { data, error } = await supabase.from('properties').select('*')
     if (!error && data) setProperties(data)
   }
 
