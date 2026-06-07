@@ -5,21 +5,32 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '../context/AuthContext'
 
 export default function ProtectedRoute({ children, roles = [] }) {
-  const { user } = useAuth()
+  const { user, profile, loading } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
-    if (user === null) return // still loading
-    if (!user) router.push('/login')
-    if (roles.length > 0 && user && !roles.includes(user.user_metadata?.role)) {
-      // redirect based on role
-      const role = user.user_metadata?.role || 'tenant'
-      if (role === 'tenant') router.push('/')
-      else if (role === 'landlord') router.push('/dashboard')
-      else router.push('/')
+    if (loading) return // wait for initialization
+    if (!user) {
+      router.replace('/login')
+      return
     }
-  }, [user])
 
-  if (!user) return <p>Loading...</p>
+    const role = profile?.role ?? user?.user_metadata?.role ?? 'tenant'
+    if (roles.length > 0 && !roles.includes(role)) {
+      if (role === 'landlord') router.replace('/dashboard')
+      else router.replace('/')
+    }
+  }, [user, profile, loading, roles, router])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-48">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-teal"></div>
+      </div>
+    )
+  }
+
+  if (!user) return null
+
   return children
 }
