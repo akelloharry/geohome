@@ -11,6 +11,11 @@ export default function Map({ center = [34.7617, -0.0917], properties = [], radi
   const markersRef = useRef([])
   const pinRef = useRef(null)
 
+  // Defensive: if token missing, show placeholder
+  if (!mapboxgl.accessToken) {
+    return <div className="w-full h-96 rounded bg-mintHint flex items-center justify-center text-sm">Map unavailable (missing token)</div>
+  }
+
   useEffect(() => {
     if (mapRef.current) return
     mapRef.current = new mapboxgl.Map({
@@ -32,7 +37,10 @@ export default function Map({ center = [34.7617, -0.0917], properties = [], radi
     markersRef.current = []
 
     properties.forEach(p => {
-      if (p.latitude == null || p.longitude == null) return
+      // normalize coordinates from multiple possible shapes
+      const lat = p.latitude ?? p.lat ?? (p.location && p.location.coordinates ? p.location.coordinates[1] : null)
+      const lng = p.longitude ?? p.lng ?? (p.location && p.location.coordinates ? p.location.coordinates[0] : null)
+      if (lat == null || lng == null) return
       const el = document.createElement('div')
       el.className = 'marker'
       el.style.width = '22px'
@@ -41,10 +49,11 @@ export default function Map({ center = [34.7617, -0.0917], properties = [], radi
       el.style.border = '2px solid white'
       el.style.cursor = 'pointer'
       // color by status
-      const color = p.sponsored ? 'var(--muted-teal, #5F8A7B)' : (p.available === false ? '#B26A5C' : 'var(--teal, #2C6E5C)')
+      const available = p.available ?? p.is_active ?? true
+      const color = p.sponsored ? 'var(--muted-teal, #5F8A7B)' : (available === false ? '#B26A5C' : 'var(--teal, #2C6E5C)')
       el.style.background = color
 
-      const marker = new mapboxgl.Marker(el).setLngLat([p.longitude, p.latitude]).addTo(map)
+      const marker = new mapboxgl.Marker(el).setLngLat([lng, lat]).addTo(map)
       if (onMarkerClick) el.addEventListener('click', () => onMarkerClick(p))
       markersRef.current.push(marker)
     })
