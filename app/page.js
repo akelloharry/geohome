@@ -100,7 +100,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="grid gap-6 md:grid-cols-3">
+      <section id="tenants" className="grid gap-6 md:grid-cols-3">
         {features.map((feature) => (
           <div key={feature.title} className="rounded-[24px] bg-white p-6 shadow-lg">
             <div className="mb-4 text-3xl">{feature.icon}</div>
@@ -110,7 +110,7 @@ export default function HomePage() {
         ))}
       </section>
 
-      <section>
+      <section id="properties">
         <div className="flex items-center justify-between gap-4">
           <h2 className="font-heading text-3xl font-bold text-primary">Recently verified in Kisumu</h2>
           <a href="#properties" className="text-sm font-semibold text-teal hover:text-primary">View more</a>
@@ -162,13 +162,13 @@ export default function HomePage() {
             <a href="#" className="block text-sm text-anchorGray mt-2 hover:text-teal">Careers</a>
           </div>
           <div>
-            <h4 className="font-heading text-base font-semibold text-primary">For tenants</h4>
+            <h4 className="font-heading text-base font-semibold text-primary">Tenants</h4>
             <a href="#" className="block text-sm text-anchorGray mt-3 hover:text-teal">How to search</a>
             <a href="#" className="block text-sm text-anchorGray mt-2 hover:text-teal">Buy a search pass</a>
             <a href="#" className="block text-sm text-anchorGray mt-2 hover:text-teal">Tenant protection</a>
           </div>
-          <div>
-            <h4 className="font-heading text-base font-semibold text-primary">For landlords</h4>
+          <div id="landlords">
+            <h4 className="font-heading text-base font-semibold text-primary">Landlords</h4>
             <a href="#" className="block text-sm text-anchorGray mt-3 hover:text-teal">List your property</a>
             <a href="#" className="block text-sm text-anchorGray mt-2 hover:text-teal">Verification process</a>
             <a href="#" className="block text-sm text-anchorGray mt-2 hover:text-teal">Pricing</a>
