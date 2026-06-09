@@ -2,11 +2,13 @@
 -- Run in Supabase SQL editor or psql connected to your DB
 --
 -- If your Supabase database uses a custom quoted schema name such as "Geo Home",
--- add the following line before running the rest of this file:
+-- run the SQL with an explicit search_path first, or fully qualify the schema.
+-- Example:
 --
 -- SET search_path = '"Geo Home"', public;
 --
--- Otherwise this file will operate in the active search_path.
+-- Then run the rest of this file so tables like profiles and properties are created
+-- inside the expected schema instead of public.
 
 -- Enable extensions
 CREATE EXTENSION IF NOT EXISTS postgis;

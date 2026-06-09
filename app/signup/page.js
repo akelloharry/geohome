@@ -40,11 +40,11 @@ export default function SignupPage() {
     <div className="max-w-md mx-auto">
       <h2 className="text-2xl mb-4">Sign up</h2>
       <form onSubmit={submit} className="space-y-3">
-        <input className="w-full border px-2 py-1" placeholder="Full name" value={fullName} onChange={e=>setFullName(e.target.value)} />
-        <input className="w-full border px-2 py-1" placeholder="Phone" value={phone} onChange={e=>setPhone(e.target.value)} />
-        <input className="w-full border px-2 py-1" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} />
-        <input className="w-full border px-2 py-1" placeholder="Password" type="password" value={password} onChange={e=>setPassword(e.target.value)} />
-        <select className="w-full border px-2 py-1" value={role} onChange={e=>setRole(e.target.value)}>
+        <input required className="w-full border px-2 py-1" placeholder="Full name" value={fullName} onChange={e=>setFullName(e.target.value)} />
+        <input required className="w-full border px-2 py-1" placeholder="Phone" value={phone} onChange={e=>setPhone(e.target.value)} />
+        <input required type="email" className="w-full border px-2 py-1" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} />
+        <input required className="w-full border px-2 py-1" placeholder="Password" type="password" value={password} onChange={e=>setPassword(e.target.value)} />
+        <select required className="w-full border px-2 py-1" value={role} onChange={e=>setRole(e.target.value)}>
           <option value="tenant">Tenant</option>
           <option value="landlord">Landlord</option>
           <option value="agent">Agent</option>
