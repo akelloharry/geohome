@@ -61,14 +61,14 @@ This creates:
 - `nearby_properties()` RPC function (PostGIS distance query)
 - Auto-profile creation trigger
 
-### Option B: Custom Schema (`"Geo Home"`)
+### Option B: Custom Schema (`geohome`)
 
-If your Supabase project uses a custom schema named `"Geo Home"`:
+If your Supabase project uses a custom schema named `geohome`:
 
 1. Open Supabase Dashboard → SQL Editor
 2. Create a new query and paste:
    ```sql
-   SET search_path = '"Geo Home"', public;
+   SET search_path = 'geohome', public;
    ```
 3. Copy and paste the full contents of `db/nearby_properties.sql` below that
 4. Click "Run"

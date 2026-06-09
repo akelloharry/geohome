@@ -13,12 +13,12 @@ Your app is deployed but showing 404 errors from Supabase. This means **the data
 5. Click **Run**
 6. Done! Refresh your app and try signing up.
 
-### If you have a custom schema named `"Geo Home"`:
+### If you have a custom schema named `geohome`:
 
 1. Go to your Supabase Dashboard → **SQL Editor** → **New Query**
 2. Paste this **first**:
    ```sql
-   SET search_path = '"Geo Home"', public;
+   SET search_path = 'geohome', public;
    ```
 3. Below that, paste the **entire contents** of [`db/nearby_properties.sql`](./db/nearby_properties.sql)
 4. Click **Run**
@@ -32,7 +32,7 @@ Your app is deployed but showing 404 errors from Supabase. This means **the data
 - [ ] Added `NEXT_PUBLIC_SUPABASE_URL` to Vercel environment variables
 - [ ] Added `NEXT_PUBLIC_SUPABASE_ANON_KEY` to Vercel environment variables
 - [ ] Added `NEXT_PUBLIC_MAPBOX_TOKEN` to Vercel environment variables
-- [ ] Added `NEXT_PUBLIC_SUPABASE_DB_SCHEMA` (set to `public` or `Geo Home`)
+- [ ] Added `NEXT_PUBLIC_SUPABASE_DB_SCHEMA` (set to `public` or `geohome`)
 - [ ] Verified Supabase allows new signups (Settings → Authentication)
 
 ---
