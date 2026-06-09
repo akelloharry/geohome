@@ -1,5 +1,12 @@
 -- GeoHome DB: PostGIS setup, tables, RPC and sample seed data
 -- Run in Supabase SQL editor or psql connected to your DB
+--
+-- If your Supabase database uses a custom quoted schema name such as "Geo Home",
+-- add the following line before running the rest of this file:
+--
+-- SET search_path = '"Geo Home"', public;
+--
+-- Otherwise this file will operate in the active search_path.
 
 -- Enable extensions
 CREATE EXTENSION IF NOT EXISTS postgis;

@@ -5,7 +5,7 @@ import mapboxgl from 'mapbox-gl'
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || ''
 
-export default function Map({ center = [34.7617, -0.0917], properties = [], radius = 0, onPinMove, draggable = false, pinLocation }) {
+export default function Map({ center = [34.7617, -0.0917], properties = [], radius = 0, onMarkerClick, onPinMove, draggable = false, pinLocation }) {
   const mapContainer = useRef(null)
   const mapRef = useRef(null)
   const markersRef = useRef([])

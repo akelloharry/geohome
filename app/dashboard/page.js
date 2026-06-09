@@ -15,7 +15,7 @@ export default function DashboardPage() {
 }
 
 function Dashboard() {
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const router = useRouter()
   const [properties, setProperties] = useState([])
   const [inquiries, setInquiries] = useState([])
@@ -25,16 +25,17 @@ function Dashboard() {
 
   useEffect(() => {
     if (!user) return
-    const role = user.user_metadata?.role || 'tenant'
+    const role = profile?.role || user.user_metadata?.role || 'tenant'
     if (role === 'tenant') return router.push('/')
     if (role === 'agent') return router.push('/agent')
     if (role === 'admin') return router.push('/admin')
     fetchProperties()
     fetchInquiries()
     fetchTransactions()
-  }, [user])
+  }, [user, profile])
 
   async function fetchProperties() {
+    if (!user) return
     const { data } = await supabase.from('properties').select('*').eq('owner_id', user.id)
     setProperties(data || [])
   }

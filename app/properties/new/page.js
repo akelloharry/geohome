@@ -2,11 +2,13 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '../../../context/AuthContext'
 import { supabase } from '../../../lib/supabaseClient'
 import Map from '../../../components/Map'
 import ProtectedRoute from '../../../components/ProtectedRoute'
 
 function NewPropertyForm() {
+  const { user } = useAuth()
   const router = useRouter()
   const [form, setForm] = useState({ title: '', address: '', price: '', deposit: '', bedrooms: '', bathrooms: '', property_type: 'rental' })
   const [location, setLocation] = useState([34.7617, -0.0917])
@@ -20,6 +22,7 @@ function NewPropertyForm() {
       ...form,
       latitude: location[1],
       longitude: location[0],
+      owner_id: user?.id,
       available: true,
       verification_status: 'pending_review',
       photos: []

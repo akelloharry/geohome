@@ -14,12 +14,26 @@ export default function SignupPage() {
   const [role, setRole] = useState('tenant')
   const [error, setError] = useState('')
 
+  const determineRedirect = (roleValue) => {
+    if (roleValue === 'landlord') return '/dashboard'
+    if (roleValue === 'agent') return '/agent'
+    if (roleValue === 'admin') return '/admin'
+    return '/'
+  }
+
   const submit = async (e) => {
     e.preventDefault()
     setError('')
     const res = await signUp(email, password, fullName, phone, role)
-    if (res.error) setError(res.error.message)
-    else router.push('/dashboard')
+    if (res.error) {
+      setError(res.error.message)
+      return
+    }
+    if (!res.data?.session) {
+      setError('Account created. Please check your email to confirm and then login.')
+      return
+    }
+    router.push(determineRedirect(role))
   }
 
   return (

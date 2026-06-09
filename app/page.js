@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import NearbySearch from '../components/NearbySearch'
 
 const properties = [
   {
@@ -99,6 +100,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <NearbySearch />
 
       <section id="tenants" className="grid gap-6 md:grid-cols-3">
         {features.map((feature) => (

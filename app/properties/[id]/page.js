@@ -9,7 +9,7 @@ import { useAuth } from '../../../context/AuthContext'
 export default function PropertyDetail({ params }) {
   const { id } = params
   const [property, setProperty] = useState(null)
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
 
   const [hasPass, setHasPass] = useState(false)
   const [requesting, setRequesting] = useState(false)
@@ -89,8 +89,8 @@ export default function PropertyDetail({ params }) {
       <aside>
         <PropertyCard property={property} />
         <div className="mt-4 flex flex-col gap-2">
-          {user?.user_metadata?.role === 'landlord' && <button className="bg-teal text-white px-4 py-2 rounded">Edit Property</button>}
-          {user?.user_metadata?.role === 'tenant' && <button className="bg-teal text-white px-4 py-2 rounded" onClick={buySearchPass}>Buy Search Pass (KES 200)</button>}
+          {(profile?.role || user?.user_metadata?.role) === 'landlord' && <button className="bg-teal text-white px-4 py-2 rounded">Edit Property</button>}
+          {(profile?.role || user?.user_metadata?.role) === 'tenant' && <button className="bg-teal text-white px-4 py-2 rounded" onClick={buySearchPass}>Buy Search Pass (KES 200)</button>}
           <button className="border px-4 py-2 rounded" onClick={requestViewing} disabled={!hasPass || requesting}>
             {hasPass ? (requesting ? 'Requesting…' : 'Request viewing') : 'Need search pass to request'}
           </button>

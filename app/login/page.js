@@ -11,12 +11,23 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
 
+  const determineRedirect = (roleValue) => {
+    if (roleValue === 'landlord') return '/dashboard'
+    if (roleValue === 'agent') return '/agent'
+    if (roleValue === 'admin') return '/admin'
+    return '/'
+  }
+
   const submit = async (e) => {
     e.preventDefault()
     setError('')
     const res = await signIn(email, password)
-    if (res.error) setError(res.error.message)
-    else router.push('/dashboard')
+    if (res.error) {
+      setError(res.error.message)
+      return
+    }
+    const roleValue = res.data?.user?.user_metadata?.role || 'tenant'
+    router.push(determineRedirect(roleValue))
   }
 
   return (
