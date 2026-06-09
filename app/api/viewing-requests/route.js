@@ -8,15 +8,13 @@ const supabaseAdmin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process
   }
 })
 
-export async function GET() {
-  const { data, error } = await supabaseAdmin.from('properties').select('*')
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data)
-}
+export async function POST(req) {
+  const { property_id, tenant_id } = await req.json()
+  if (!property_id || !tenant_id) {
+    return NextResponse.json({ error: 'Missing property_id or tenant_id' }, { status: 400 })
+  }
 
-export async function PATCH(req) {
-  const { id, status } = await req.json()
-  const { data, error } = await supabaseAdmin.from('properties').update({ verification_status: status }).eq('id', id)
+  const { data, error } = await supabaseAdmin.from('viewing_requests').insert({ property_id, tenant_id }).single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data)
 }

@@ -1,4 +1,4 @@
-"use client"
+""use client"
 
 import { useEffect, useRef } from 'react'
 import mapboxgl from 'mapbox-gl'
@@ -37,10 +37,10 @@ export default function Map({ center = [34.7617, -0.0917], properties = [], radi
     markersRef.current = []
 
     properties.forEach(p => {
-      // normalize coordinates from multiple possible shapes
       const lat = p.latitude ?? p.lat ?? (p.location && p.location.coordinates ? p.location.coordinates[1] : null)
       const lng = p.longitude ?? p.lng ?? (p.location && p.location.coordinates ? p.location.coordinates[0] : null)
       if (lat == null || lng == null) return
+
       const el = document.createElement('div')
       el.className = 'marker'
       el.style.width = '22px'
@@ -48,17 +48,29 @@ export default function Map({ center = [34.7617, -0.0917], properties = [], radi
       el.style.borderRadius = '50%'
       el.style.border = '2px solid white'
       el.style.cursor = 'pointer'
-      // color by status
       const available = p.available ?? p.is_active ?? true
       const color = p.sponsored ? 'var(--muted-teal, #5F8A7B)' : (available === false ? '#B26A5C' : 'var(--teal, #2C6E5C)')
       el.style.background = color
 
       const marker = new mapboxgl.Marker(el).setLngLat([lng, lat]).addTo(map)
-      if (onMarkerClick) el.addEventListener('click', () => onMarkerClick(p))
+
+      const title = p.title || 'Property'
+      const address = p.address || p.address_text || ''
+      const price = p.price != null ? `KES ${p.price}` : ''
+      const bedrooms = p.bedrooms != null ? `${p.bedrooms} bd` : ''
+      const details = [address, price, bedrooms].filter(Boolean).join(' • ')
+      const propertyLink = p.id ? `/properties/${p.id}` : '#'
+      const popupHtml = `<div style="font-size:13px;line-height:1.4;max-width:240px;color:#1E293B;"><strong style="display:block;margin-bottom:4px;">${title}</strong>${details ? `<div style="margin-bottom:8px;">${details}</div>` : ''}<a href="${propertyLink}" style="color:#0f766e;text-decoration:none;font-weight:600;">View details</a></div>`
+      const popup = new mapboxgl.Popup({ offset: 25, closeButton: false }).setHTML(popupHtml)
+      marker.setPopup(popup)
+
+      if (onMarkerClick) {
+        el.addEventListener('click', () => onMarkerClick(p))
+      }
+
       markersRef.current.push(marker)
     })
 
-    // pin for draggable location picker
     if (pinLocation) {
       if (pinRef.current) {
         pinRef.current.setLngLat([pinLocation[0], pinLocation[1]])

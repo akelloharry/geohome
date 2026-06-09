@@ -19,21 +19,41 @@ CREATE TABLE IF NOT EXISTS properties (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   title text,
   address text,
+  address_text text,
   price integer,
   deposit integer,
   bedrooms integer,
   bathrooms integer,
   property_type text,
+  furnished boolean DEFAULT false,
+  water_supply text,
+  electricity text,
+  parking text,
+  security text[],
+  backup_power text,
+  internet text,
   latitude double precision,
   longitude double precision,
   geom geography(Point,4326),
   photos text[],
   sponsored boolean DEFAULT false,
   available boolean DEFAULT true,
-  verification_status text DEFAULT 'verified',
+  is_active boolean DEFAULT true,
+  verification_status text DEFAULT 'pending',
   owner_id uuid,
   created_at timestamptz DEFAULT now()
 );
+
+ALTER TABLE properties ALTER COLUMN verification_status SET DEFAULT 'pending';
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS address_text text;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS furnished boolean DEFAULT false;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS water_supply text;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS electricity text;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS parking text;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS security text[];
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS backup_power text;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS internet text;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS is_active boolean DEFAULT true;
 
 -- Trigger to keep geom in sync
 CREATE OR REPLACE FUNCTION properties_set_geom() RETURNS trigger AS $$
@@ -52,32 +72,50 @@ FOR EACH ROW EXECUTE FUNCTION properties_set_geom();
 -- Agent submissions table
 CREATE TABLE IF NOT EXISTS agent_submissions (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  agent_id uuid,
   property_type text,
   rent integer,
   deposit integer,
   bedrooms integer,
   bathrooms integer,
   furnished boolean,
-  water boolean,
-  electricity boolean,
-  parking boolean,
+  water_supply text,
+  electricity text,
+  parking text,
   security text[],
-  backup_power boolean,
-  internet boolean,
+  backup_power text,
+  internet text,
   latitude double precision,
   longitude double precision,
+  landlord_name text,
+  landlord_phone text,
+  notes text,
   photos text[],
+  property_id uuid,
   status text DEFAULT 'pending_review',
   created_at timestamptz DEFAULT now()
 );
 
--- Search passes
+ALTER TABLE agent_submissions ADD COLUMN IF NOT EXISTS agent_id uuid;
+ALTER TABLE agent_submissions ADD COLUMN IF NOT EXISTS water_supply text;
+ALTER TABLE agent_submissions ADD COLUMN IF NOT EXISTS electricity text;
+ALTER TABLE agent_submissions ADD COLUMN IF NOT EXISTS parking text;
+ALTER TABLE agent_submissions ADD COLUMN IF NOT EXISTS backup_power text;
+ALTER TABLE agent_submissions ADD COLUMN IF NOT EXISTS internet text;
+ALTER TABLE agent_submissions ADD COLUMN IF NOT EXISTS landlord_name text;
+ALTER TABLE agent_submissions ADD COLUMN IF NOT EXISTS landlord_phone text;
+ALTER TABLE agent_submissions ADD COLUMN IF NOT EXISTS notes text;
+ALTER TABLE agent_submissions ADD COLUMN IF NOT EXISTS property_id uuid;
+
 CREATE TABLE IF NOT EXISTS search_passes (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid,
   purchased_at timestamptz DEFAULT now(),
-  expires_at timestamptz
+  expires_at timestamptz,
+  paid_amount integer
 );
+
+ALTER TABLE search_passes ADD COLUMN IF NOT EXISTS paid_amount integer;
 
 -- RPC: nearby_properties(lat, lng, radius)
 CREATE OR REPLACE FUNCTION nearby_properties(lat double precision, lng double precision, radius integer)
@@ -124,8 +162,11 @@ CREATE TABLE IF NOT EXISTS profiles (
   full_name text,
   phone text,
   role text,
+  verified boolean DEFAULT false,
   created_at timestamptz DEFAULT now()
 );
+
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS verified boolean DEFAULT false;
 
 CREATE OR REPLACE FUNCTION handle_auth_user_insert() RETURNS trigger AS $$
 BEGIN
@@ -148,6 +189,14 @@ CREATE TABLE IF NOT EXISTS inquiries (
   user_id uuid,
   message text,
   created_at timestamptz DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS viewing_requests (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  property_id uuid,
+  tenant_id uuid,
+  status text DEFAULT 'pending',
+  requested_at timestamptz DEFAULT now()
 );
 
 -- Transactions / escrow table

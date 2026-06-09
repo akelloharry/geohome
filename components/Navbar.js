@@ -4,7 +4,8 @@ import Link from 'next/link'
 import { useAuth } from '../context/AuthContext'
 
 export default function Navbar() {
-  const { user, signOut } = useAuth()
+  const { user, profile, signOut } = useAuth()
+  const role = profile?.role ?? user?.user_metadata?.role
 
   return (
     <nav className="w-full bg-white shadow-sm">
@@ -17,6 +18,9 @@ export default function Navbar() {
             <a href="#tenants" className="hover:text-teal transition">Tenants</a>
             <a href="#landlords" className="hover:text-teal transition">Landlords</a>
             <a href="#how-it-works" className="hover:text-teal transition">How it works</a>
+            {role === 'landlord' && <Link href="/dashboard" className="hover:text-teal transition">Dashboard</Link>}
+            {role === 'agent' && <Link href="/agent" className="hover:text-teal transition">Agent</Link>}
+            {role === 'admin' && <Link href="/admin" className="hover:text-teal transition">Admin</Link>}
           </div>
         </div>
 
@@ -34,7 +38,7 @@ export default function Navbar() {
                 Login
               </Link>
               <Link href="/signup" className="text-sm bg-teal text-white rounded-full px-4 py-2 hover:bg-primary transition">
-                List property
+                Sign up
               </Link>
             </>
           )}
