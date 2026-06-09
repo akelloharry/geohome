@@ -1,4 +1,9 @@
+"use client"
+
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useAuth } from '../context/AuthContext'
 import NearbySearch from '../components/NearbySearch'
 
 const properties = [
@@ -59,6 +64,29 @@ const steps = [
 ]
 
 export default function HomePage() {
+  const { user, profile, loading } = useAuth()
+  const router = useRouter()
+
+  // Redirect non-tenant users to their role-specific dashboards
+  useEffect(() => {
+    if (loading) return
+    if (!user) return
+    const role = profile?.role ?? user?.user_metadata?.role ?? 'tenant'
+    if (role === 'tenant') return // stay on home page
+    if (role === 'landlord') return router.replace('/dashboard')
+    if (role === 'agent') return router.replace('/agent')
+    if (role === 'admin') return router.replace('/admin')
+  }, [user, profile, loading, router])
+
+  // Show loading spinner while checking auth
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-teal"></div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-16">
       <section className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr] items-center">

@@ -17,7 +17,10 @@ export default function ProtectedRoute({ children, roles = [] }) {
 
     const role = profile?.role ?? user?.user_metadata?.role ?? 'tenant'
     if (roles.length > 0 && !roles.includes(role)) {
+      // Redirect to role-appropriate dashboard
       if (role === 'landlord') router.replace('/dashboard')
+      else if (role === 'agent') router.replace('/agent')
+      else if (role === 'admin') router.replace('/admin')
       else router.replace('/')
     }
   }, [user, profile, loading, roles, router])
