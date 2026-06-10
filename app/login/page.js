@@ -36,57 +36,36 @@ export default function LoginPage() {
     e.preventDefault()
     setError('')
     setSigningIn(true)
+
     const res = await signIn(email, password)
     if (res.error) {
-      setError(res.error.message || 'Login failed. Please check your credentials.')
+      setError(res.error.message)
       setSigningIn(false)
       return
     }
 
-    const userId = res.data?.user?.id
-    if (!userId) {
-      setError('Login failed. Please try again.')
+    const { data: userData, error: userError } = await supabase.auth.getUser()
+    if (userError || !userData?.user) {
+      setError('Could not retrieve user')
       setSigningIn(false)
       return
     }
 
-    const { data: profileData, error: profileError } = await supabase
+    const user = userData.user
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('role')
-      .eq('id', userId)
-      .maybeSingle()
+      .eq('id', user.id)
+      .single()
 
-    if (profileError) {
-      console.error(profileError)
-      router.push('/')
+    if (profileError || !profile) {
+      console.error('Profile fetch error:', profileError)
+      setError('Account setup incomplete. Please contact support.')
       setSigningIn(false)
       return
     }
 
-    const userMeta = res.data?.user?.user_metadata ?? {}
-    let role = profileData?.role ?? userMeta.role ?? 'tenant'
-    let finalProfile = profileData
-
-    if (!profileData) {
-      const { data: insertedProfile, error: insertError } = await supabase
-        .from('profiles')
-        .insert([
-          {
-            id: userId,
-            role
-          }
-        ])
-        .select('role')
-        .single()
-
-      if (insertError) {
-        console.error('Profile insert failed:', insertError)
-      } else if (insertedProfile) {
-        role = insertedProfile.role || role
-      }
-    }
-
-    switch (role) {
+    switch (profile.role) {
       case 'landlord':
         router.push('/dashboard')
         break
