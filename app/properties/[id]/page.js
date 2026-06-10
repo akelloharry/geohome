@@ -76,7 +76,13 @@ export default function PropertyDetail({ params }) {
     <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.7fr_0.9fr]">
       <div className="space-y-4">
         <div className="rounded-3xl overflow-hidden border bg-white">
-          <Map center={[property.longitude, property.latitude]} properties={[property]} />
+          {
+            (() => {
+              const lng = property.lng ?? property.longitude ?? (property.location && property.location.coordinates ? property.location.coordinates[0] : 34.7617)
+              const lat = property.lat ?? property.latitude ?? (property.location && property.location.coordinates ? property.location.coordinates[1] : -0.0917)
+              return <Map center={[lng, lat]} properties={[property]} />
+            })()
+          }
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">

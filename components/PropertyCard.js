@@ -3,8 +3,8 @@ import Link from 'next/link'
 export default function PropertyCard({ property }) {
   if (!property) return null
   // normalize common fields
-  const price = property.price ?? property.rent_amount ?? property.price_amount ?? ''
-  const address = property.address ?? property.address_text ?? property.address_full ?? ''
+  const price = property.price ?? ''
+  const address = property.address ?? ''
   const bedrooms = property.bedrooms ?? property.num_bedrooms ?? ''
   const photos = property.photos ?? property.images ?? property.image_urls ?? []
   const available = property.available ?? property.is_active ?? true

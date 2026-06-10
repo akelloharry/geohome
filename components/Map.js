@@ -37,8 +37,8 @@ export default function Map({ center = [34.7617, -0.0917], properties = [], radi
     markersRef.current = []
 
     properties.forEach(p => {
-      const lat = p.latitude ?? p.lat ?? (p.location && p.location.coordinates ? p.location.coordinates[1] : null)
-      const lng = p.longitude ?? p.lng ?? (p.location && p.location.coordinates ? p.location.coordinates[0] : null)
+      const lat = p.lat ?? p.latitude ?? (p.location && p.location.coordinates ? p.location.coordinates[1] : null)
+      const lng = p.lng ?? p.longitude ?? (p.location && p.location.coordinates ? p.location.coordinates[0] : null)
       if (lat == null || lng == null) return
 
       const el = document.createElement('div')
@@ -55,7 +55,7 @@ export default function Map({ center = [34.7617, -0.0917], properties = [], radi
       const marker = new mapboxgl.Marker(el).setLngLat([lng, lat]).addTo(map)
 
       const title = p.title || 'Property'
-      const address = p.address || p.address_text || ''
+      const address = p.address || ''
       const price = p.price != null ? `KES ${p.price}` : ''
       const bedrooms = p.bedrooms != null ? `${p.bedrooms} bd` : ''
       const details = [address, price, bedrooms].filter(Boolean).join(' • ')
