@@ -54,16 +54,39 @@ export default function LoginPage() {
       .from('profiles')
       .select('role')
       .eq('id', userId)
-      .single()
+      .maybeSingle()
 
-    if (profileError || !profileData) {
+    if (profileError) {
       console.error(profileError)
       router.push('/')
       setSigningIn(false)
       return
     }
 
-    switch (profileData.role) {
+    const userMeta = res.data?.user?.user_metadata ?? {}
+    let role = profileData?.role ?? userMeta.role ?? 'tenant'
+    let finalProfile = profileData
+
+    if (!profileData) {
+      const fullName = userMeta.full_name || `${userMeta.first_name || ''} ${userMeta.last_name || ''}`.trim() || null
+      const { data: insertedProfile, error: insertError } = await supabase
+        .from('profiles')
+        .insert({
+          id: userId,
+          full_name: fullName,
+          phone: userMeta.phone || null,
+          role
+        })
+        .select('role')
+        .maybeSingle()
+
+      if (!insertError && insertedProfile) {
+        finalProfile = insertedProfile
+        role = insertedProfile.role || role
+      }
+    }
+
+    switch (role) {
       case 'landlord':
         router.push('/dashboard')
         break
