@@ -60,8 +60,7 @@ function NewPropertyForm() {
       location: `POINT(${location[0]} ${location[1]})`,
       landlord_id: user.id,
       verification_status: 'pending',
-      available: true,
-      photos: []
+      available: true
     }
 
     const { data, error } = await supabase.from('properties').insert(payload).select('id').single()

@@ -31,13 +31,17 @@ export async function PATCH(req) {
       backup_power: submission.backup_power,
       internet: submission.internet,
       location: submission.longitude && submission.latitude ? `POINT(${submission.longitude} ${submission.latitude})` : null,
-      photos: submission.photos,
       verification_status: 'verified',
       available: true
     }
 
     const { data: propertyData, error: propertyError } = await supabaseAdmin.from('properties').insert(propertyPayload).select('id').single()
     if (propertyError) return NextResponse.json({ error: propertyError.message }, { status: 500 })
+
+    // if submission included photos, write them after insert to avoid schema errors
+    if (submission.photos && submission.photos.length) {
+      await supabaseAdmin.from('properties').update({ photos: submission.photos }).eq('id', propertyData.id)
+    }
 
     const { data, error } = await supabaseAdmin.from('agent_submissions').update({ status: 'approved', property_id: propertyData.id }).eq('id', id)
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
