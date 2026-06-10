@@ -71,17 +71,20 @@ export default function LoginPage() {
       const fullName = userMeta.full_name || `${userMeta.first_name || ''} ${userMeta.last_name || ''}`.trim() || null
       const { data: insertedProfile, error: insertError } = await supabase
         .from('profiles')
-        .insert({
-          id: userId,
-          full_name: fullName,
-          phone: userMeta.phone || null,
-          role
-        })
+        .insert([
+          {
+            id: userId,
+            full_name: fullName,
+            phone: userMeta.phone || null,
+            role
+          }
+        ])
         .select('role')
-        .maybeSingle()
+        .single()
 
-      if (!insertError && insertedProfile) {
-        finalProfile = insertedProfile
+      if (insertError) {
+        console.error('Profile insert failed:', insertError)
+      } else if (insertedProfile) {
         role = insertedProfile.role || role
       }
     }
