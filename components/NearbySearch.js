@@ -19,8 +19,11 @@ export default function NearbySearch() {
   async function fetchNearby() {
     setLoading(true)
     setError('')
-    const { data, error } = await supabase.rpc('nearby_properties', { lat: center[1], lng: center[0], radius })
+    const payload = { lat: center[1], lng: center[0], radius }
+    console.log('Calling RPC nearby_properties with payload:', payload)
+    const { data, error } = await supabase.rpc('nearby_properties', payload)
     if (error) {
+      console.error('nearby_properties RPC error:', error)
       setError(error.message)
       setProperties([])
     } else {
