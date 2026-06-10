@@ -20,10 +20,10 @@ function NewPropertyForm() {
   const router = useRouter()
   const [form, setForm] = useState({
     title: '',
-    address_text: '',
+    address: '',
     property_type: '1BR',
-    rent_amount: '',
-    deposit_amount: '',
+    price: '',
+    deposit: '',
     bedrooms: '',
     bathrooms: '',
     furnished: false,
@@ -44,11 +44,10 @@ function NewPropertyForm() {
     setSaving(true)
     const payload = {
       title: form.title,
-      address_text: form.address_text,
-      address: form.address_text,
+      address: form.address,
       property_type: form.property_type,
-      price: Number(form.rent_amount) || null,
-      deposit: Number(form.deposit_amount) || null,
+      price: Number(form.price) || null,
+      deposit: Number(form.deposit) || null,
       bedrooms: Number(form.bedrooms) || null,
       bathrooms: Number(form.bathrooms) || null,
       furnished: form.furnished,
@@ -58,8 +57,7 @@ function NewPropertyForm() {
       security: form.security,
       backup_power: form.backup_power,
       internet: form.internet,
-      latitude: location[1],
-      longitude: location[0],
+      location: `POINT(${location[0]} ${location[1]})`,
       owner_id: user.id,
       verification_status: 'pending',
       available: true,
@@ -107,10 +105,10 @@ function NewPropertyForm() {
             {propertyTypeOptions.map((type) => <option key={type} value={type}>{type}</option>)}
           </select>
         </div>
-        <textarea required value={form.address_text} onChange={(e) => setForm({ ...form, address_text: e.target.value })} placeholder="Address" className="w-full border rounded-lg px-4 py-3 min-h-[100px]" />
+        <textarea required value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder="Address" className="w-full border rounded-lg px-4 py-3 min-h-[100px]" />
         <div className="grid gap-4 md:grid-cols-3">
-          <input required type="number" value={form.rent_amount} onChange={(e) => setForm({ ...form, rent_amount: e.target.value })} placeholder="Rent amount" className="w-full border rounded-lg px-4 py-3" />
-          <input required type="number" value={form.deposit_amount} onChange={(e) => setForm({ ...form, deposit_amount: e.target.value })} placeholder="Deposit amount" className="w-full border rounded-lg px-4 py-3" />
+          <input required type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="Rent amount" className="w-full border rounded-lg px-4 py-3" />
+          <input required type="number" value={form.deposit} onChange={(e) => setForm({ ...form, deposit: e.target.value })} placeholder="Deposit amount" className="w-full border rounded-lg px-4 py-3" />
           <input required type="number" value={form.bedrooms} onChange={(e) => setForm({ ...form, bedrooms: e.target.value })} placeholder="Bedrooms" className="w-full border rounded-lg px-4 py-3" />
         </div>
         <div className="grid gap-4 md:grid-cols-3">

@@ -87,7 +87,7 @@ function AdminInner() {
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <div className="font-semibold">{property.title || 'Untitled'}</div>
-                    <div className="text-sm text-anchorGray">{property.address_text || property.address}</div>
+                    <div className="text-sm text-anchorGray">{property.address || property.address_text}</div>
                   </div>
                   <div className="flex gap-2">
                     <button className="rounded-full bg-teal px-3 py-1 text-sm text-white" onClick={() => updatePropertyStatus(property.id, 'verified')}>Approve</button>

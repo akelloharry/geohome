@@ -17,10 +17,10 @@ const internetOptions = ['None', 'Fiber', 'Wireless', 'Mobile']
 
 const blankForm = {
   title: '',
-  address_text: '',
+  address: '',
   property_type: '1BR',
-  rent_amount: '',
-  deposit_amount: '',
+  price: '',
+  deposit: '',
   bedrooms: '',
   bathrooms: '',
   furnished: false,
@@ -96,10 +96,10 @@ function Dashboard() {
       setEditing(property)
       setForm({
         title: property.title || '',
-        address_text: property.address_text || property.address || '',
+        address: property.address || property.address_text || '',
         property_type: property.property_type || '1BR',
-        rent_amount: property.price || '',
-        deposit_amount: property.deposit || '',
+        price: property.price || '',
+        deposit: property.deposit || '',
         bedrooms: property.bedrooms || '',
         bathrooms: property.bathrooms || '',
         furnished: property.furnished || false,
@@ -110,7 +110,10 @@ function Dashboard() {
         backup_power: property.backup_power || 'None',
         internet: property.internet || 'None'
       })
-      setLocation([property.longitude || 34.7617, property.latitude || -0.0917])
+      // derive location from canonical fields
+      const lng = property.lng ?? property.longitude ?? (property.location && property.location.coordinates ? property.location.coordinates[0] : 34.7617)
+      const lat = property.lat ?? property.latitude ?? (property.location && property.location.coordinates ? property.location.coordinates[1] : -0.0917)
+      setLocation([lng, lat])
     } else {
       setEditing(null)
       setForm(blankForm)
@@ -126,11 +129,10 @@ function Dashboard() {
     setSaving(true)
     const payload = {
       title: form.title,
-      address_text: form.address_text,
-      address: form.address_text,
+      address: form.address,
       property_type: form.property_type,
-      price: Number(form.rent_amount) || null,
-      deposit: Number(form.deposit_amount) || null,
+      price: Number(form.price) || null,
+      deposit: Number(form.deposit) || null,
       bedrooms: Number(form.bedrooms) || null,
       bathrooms: Number(form.bathrooms) || null,
       furnished: form.furnished,
@@ -140,8 +142,7 @@ function Dashboard() {
       security: form.security,
       backup_power: form.backup_power,
       internet: form.internet,
-      latitude: location[1],
-      longitude: location[0],
+      location: `POINT(${location[0]} ${location[1]})`,
       owner_id: user.id,
       verification_status: 'pending',
       available: true,
@@ -224,7 +225,7 @@ function Dashboard() {
                   <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
                     <div>
                       <div className="font-semibold text-xl">{property.title || 'Untitled property'}</div>
-                      <div className="text-sm text-anchorGray">{property.address_text || property.address}</div>
+                      <div className="text-sm text-anchorGray">{property.address || property.address_text}</div>
                     </div>
                     <div className="flex flex-wrap gap-2 text-xs">
                       <span className={`rounded-full px-2 py-1 ${property.verification_status === 'verified' ? 'bg-mintHint text-teal' : property.verification_status === 'rejected' ? 'bg-estateRed/10 text-estateRed' : 'bg-slate-100 text-slate-700'}`}>{property.verification_status || 'pending'}</span>
@@ -306,10 +307,10 @@ function Dashboard() {
                   {propertyTypeOptions.map((type) => <option key={type} value={type}>{type}</option>)}
                 </select>
               </div>
-              <textarea required value={form.address_text} onChange={(e) => setForm({ ...form, address_text: e.target.value })} placeholder="Full address" className="w-full border px-4 py-3 rounded-lg min-h-[94px]" />
+              <textarea required value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder="Full address" className="w-full border px-4 py-3 rounded-lg min-h-[94px]" />
               <div className="grid gap-4 md:grid-cols-3">
-                <input required type="number" value={form.rent_amount} onChange={(e) => setForm({ ...form, rent_amount: e.target.value })} placeholder="Rent amount" className="w-full border px-4 py-3 rounded-lg" />
-                <input required type="number" value={form.deposit_amount} onChange={(e) => setForm({ ...form, deposit_amount: e.target.value })} placeholder="Deposit amount" className="w-full border px-4 py-3 rounded-lg" />
+                <input required type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="Rent amount" className="w-full border px-4 py-3 rounded-lg" />
+                <input required type="number" value={form.deposit} onChange={(e) => setForm({ ...form, deposit: e.target.value })} placeholder="Deposit amount" className="w-full border px-4 py-3 rounded-lg" />
                 <input required type="number" value={form.bedrooms} onChange={(e) => setForm({ ...form, bedrooms: e.target.value })} placeholder="Bedrooms" className="w-full border px-4 py-3 rounded-lg" />
               </div>
               <div className="grid gap-4 md:grid-cols-3">

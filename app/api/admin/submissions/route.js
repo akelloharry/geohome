@@ -17,7 +17,6 @@ export async function PATCH(req) {
 
     const propertyPayload = {
       title: submission.property_type ? `${submission.property_type} listing` : 'Submitted property',
-      address_text: submission.notes || null,
       address: submission.notes || null,
       property_type: submission.property_type,
       price: submission.rent,
@@ -31,8 +30,7 @@ export async function PATCH(req) {
       security: submission.security,
       backup_power: submission.backup_power,
       internet: submission.internet,
-      latitude: submission.latitude,
-      longitude: submission.longitude,
+      location: submission.longitude && submission.latitude ? `POINT(${submission.longitude} ${submission.latitude})` : null,
       photos: submission.photos,
       verification_status: 'verified',
       available: true,
