@@ -48,6 +48,7 @@ export default function SignupPage() {
           <option value="tenant">Tenant</option>
           <option value="landlord">Landlord</option>
           <option value="agent">Agent</option>
+          <option value="admin">Admin</option>
         </select>
         {error && <div className="text-estateRed">{error}</div>}
         <button className="bg-teal text-white px-4 py-2 rounded">Create account</button>

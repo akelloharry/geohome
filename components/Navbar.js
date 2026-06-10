@@ -1,10 +1,12 @@
 "use client"
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '../context/AuthContext'
 
 export default function Navbar() {
   const { user, profile, signOut } = useAuth()
+  const router = useRouter()
   const role = profile?.role ?? user?.user_metadata?.role
 
   return (
@@ -28,7 +30,13 @@ export default function Navbar() {
           {user ? (
             <>
               <span className="text-sm text-anchorGray hidden sm:inline">{user.email}</span>
-              <button onClick={() => signOut()} className="rounded-full border border-teal px-4 py-2 text-sm text-teal hover:bg-teal hover:text-white transition">
+              <button
+                onClick={async () => {
+                  await signOut()
+                  router.push('/')
+                }}
+                className="rounded-full border border-teal px-4 py-2 text-sm text-teal hover:bg-teal hover:text-white transition"
+              >
                 Sign out
               </button>
             </>

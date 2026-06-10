@@ -59,8 +59,11 @@ export function AuthProvider({ children }) {
     })
   }
 
-  const signIn = (email, password) => supabase.auth.signInWithPassword({ email, password })
-  const signOut = () => supabase.auth.signOut()
+  const signIn = (email, password) => supabase.auth.signInWithPassword(
+    { email, password },
+    { redirectTo: typeof window !== 'undefined' ? window.location.origin : undefined }
+  )
+  const signOut = async () => await supabase.auth.signOut()
 
   return (
     <AuthContext.Provider value={{ user, profile, loading, signUp, signIn, signOut }}>

@@ -42,6 +42,7 @@ export default function LoginPage() {
       setSigningIn(false)
       return
     }
+    setSigningIn(false)
     // signIn succeeded, AuthContext will load profile and trigger redirect via useEffect above
   }
 
