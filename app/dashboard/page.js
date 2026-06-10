@@ -145,8 +145,7 @@ function Dashboard() {
       location: `POINT(${location[0]} ${location[1]})`,
       owner_id: user.id,
       verification_status: 'pending',
-      available: true,
-      is_active: true
+      available: true
     }
 
     let propertyId
@@ -190,7 +189,7 @@ function Dashboard() {
   }
 
   const toggleActive = async (property) => {
-    await supabase.from('properties').update({ available: !property.available, is_active: !property.available }).eq('id', property.id)
+    await supabase.from('properties').update({ available: !property.available }).eq('id', property.id)
     fetchProperties()
   }
 

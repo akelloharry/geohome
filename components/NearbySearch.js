@@ -27,7 +27,7 @@ export default function NearbySearch() {
       setError(error.message)
       setProperties([])
     } else {
-      const filtered = (data || []).filter((property) => property.verification_status === 'verified' && (property.available ?? property.is_active ?? true))
+      const filtered = (data || []).filter((property) => property.verification_status === 'verified' && (property.available ?? true))
       setProperties(filtered)
     }
     setLoading(false)

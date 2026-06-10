@@ -33,8 +33,7 @@ export async function PATCH(req) {
       location: submission.longitude && submission.latitude ? `POINT(${submission.longitude} ${submission.latitude})` : null,
       photos: submission.photos,
       verification_status: 'verified',
-      available: true,
-      is_active: true
+      available: true
     }
 
     const { data: propertyData, error: propertyError } = await supabaseAdmin.from('properties').insert(propertyPayload).select('id').single()

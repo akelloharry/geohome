@@ -61,7 +61,6 @@ function NewPropertyForm() {
       owner_id: user.id,
       verification_status: 'pending',
       available: true,
-      is_active: true,
       photos: []
     }
 

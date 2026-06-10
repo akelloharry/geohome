@@ -48,7 +48,7 @@ export default function Map({ center = [34.7617, -0.0917], properties = [], radi
       el.style.borderRadius = '50%'
       el.style.border = '2px solid white'
       el.style.cursor = 'pointer'
-      const available = p.available ?? p.is_active ?? true
+      const available = p.available ?? true
       const color = p.sponsored ? 'var(--muted-teal, #5F8A7B)' : (available === false ? '#B26A5C' : 'var(--teal, #2C6E5C)')
       el.style.background = color
 

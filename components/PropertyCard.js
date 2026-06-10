@@ -7,7 +7,7 @@ export default function PropertyCard({ property }) {
   const address = property.address ?? ''
   const bedrooms = property.bedrooms ?? property.num_bedrooms ?? ''
   const photos = property.photos ?? property.images ?? property.image_urls ?? []
-  const available = property.available ?? property.is_active ?? true
+  const available = property.available ?? true
 
   return (
     <div className="border rounded shadow-sm overflow-hidden bg-white">
