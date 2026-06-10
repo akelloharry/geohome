@@ -21,8 +21,8 @@ export default function PropertyDetail({ params }) {
   async function fetchProperty() {
     const { data } = await supabase.from('properties').select('*').eq('id', id).single()
     setProperty(data)
-    if (data?.owner_id) {
-      const { data: owner } = await supabase.from('profiles').select('*').eq('id', data.owner_id).single()
+    if (data?.landlord_id) {
+      const { data: owner } = await supabase.from('profiles').select('*').eq('id', data.landlord_id).single()
       setLandlord(owner)
     }
   }

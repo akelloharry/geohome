@@ -67,14 +67,14 @@ function Dashboard() {
 
   async function fetchProperties() {
     if (!user) return
-    const { data } = await supabase.from('properties').select('*').eq('owner_id', user.id).order('created_at', { ascending: false })
+    const { data } = await supabase.from('properties').select('*').eq('landlord_id', user.id).order('created_at', { ascending: false })
     setProperties(data || [])
   }
 
   async function fetchInquiries() {
     if (!user) return
     try {
-      const { data } = await supabase.from('inquiries').select('*').eq('owner_id', user.id).order('created_at', { ascending: false })
+      const { data } = await supabase.from('inquiries').select('*').eq('landlord_id', user.id).order('created_at', { ascending: false })
       setInquiries(data || [])
     } catch {
       setInquiries([])
@@ -84,7 +84,7 @@ function Dashboard() {
   async function fetchTransactions() {
     if (!user) return
     try {
-      const { data } = await supabase.from('transactions').select('*').eq('owner_id', user.id).order('created_at', { ascending: false })
+      const { data } = await supabase.from('transactions').select('*').eq('landlord_id', user.id).order('created_at', { ascending: false })
       setTransactions(data || [])
     } catch {
       setTransactions([])
@@ -143,7 +143,7 @@ function Dashboard() {
       backup_power: form.backup_power,
       internet: form.internet,
       location: `POINT(${location[0]} ${location[1]})`,
-      owner_id: user.id,
+      landlord_id: user.id,
       verification_status: 'pending',
       available: true
     }

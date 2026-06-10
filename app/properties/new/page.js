@@ -58,7 +58,7 @@ function NewPropertyForm() {
       backup_power: form.backup_power,
       internet: form.internet,
       location: `POINT(${location[0]} ${location[1]})`,
-      owner_id: user.id,
+      landlord_id: user.id,
       verification_status: 'pending',
       available: true,
       photos: []
