@@ -68,14 +68,11 @@ export default function LoginPage() {
     let finalProfile = profileData
 
     if (!profileData) {
-      const fullName = userMeta.full_name || `${userMeta.first_name || ''} ${userMeta.last_name || ''}`.trim() || null
       const { data: insertedProfile, error: insertError } = await supabase
         .from('profiles')
         .insert([
           {
             id: userId,
-            full_name: fullName,
-            phone: userMeta.phone || null,
             role
           }
         ])
