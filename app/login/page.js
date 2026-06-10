@@ -20,10 +20,13 @@ export default function LoginPage() {
 
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
+      console.error('Sign in error:', error)
       setError(error.message)
       setSigningIn(false)
       return
     }
+
+    console.log('Sign in successful, user ID:', data.user.id)
 
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
@@ -32,30 +35,35 @@ export default function LoginPage() {
       .single()
 
     if (profileError) {
-      console.error(profileError)
+      console.error('Profile fetch error:', profileError)
       setError('Could not retrieve user role. Please contact support.')
       setSigningIn(false)
       return
     }
 
+    console.log('Profile retrieved, role:', profile.role)
+
     switch (profile.role) {
       case 'landlord':
+        console.log('Redirecting to /dashboard')
         router.push('/dashboard')
         break
       case 'tenant':
+        console.log('Redirecting to /')
         router.push('/')
         break
       case 'agent':
+        console.log('Redirecting to /agent')
         router.push('/agent')
         break
       case 'admin':
+        console.log('Redirecting to /admin')
         router.push('/admin')
         break
       default:
+        console.log('Unknown role, redirecting to /')
         router.push('/')
     }
-
-    setSigningIn(false)
   }
 
   return (
