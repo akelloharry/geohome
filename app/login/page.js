@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '../../context/AuthContext'
+import { supabase } from '../../lib/supabaseClient'
 
 export default function LoginPage() {
   const { signIn, user, profile, loading } = useAuth()
@@ -12,7 +13,6 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [signingIn, setSigningIn] = useState(false)
 
-  // After successful signin, watch for profile to load and redirect
   useEffect(() => {
     if (!user || loading || signingIn) return
     const role = profile?.role ?? user?.user_metadata?.role ?? 'tenant'
@@ -42,8 +42,42 @@ export default function LoginPage() {
       setSigningIn(false)
       return
     }
+
+    const userId = res.data?.user?.id
+    if (!userId) {
+      setError('Login failed. Please try again.')
+      setSigningIn(false)
+      return
+    }
+
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', userId)
+      .single()
+
+    if (profileError || !profileData) {
+      console.error(profileError)
+      router.push('/')
+      setSigningIn(false)
+      return
+    }
+
+    switch (profileData.role) {
+      case 'landlord':
+        router.push('/dashboard')
+        break
+      case 'agent':
+        router.push('/agent')
+        break
+      case 'admin':
+        router.push('/admin')
+        break
+      default:
+        router.push('/')
+    }
+
     setSigningIn(false)
-    // signIn succeeded, AuthContext will load profile and trigger redirect via useEffect above
   }
 
   return (

@@ -34,7 +34,7 @@ const blankForm = {
 
 export default function DashboardPage() {
   return (
-    <ProtectedRoute roles={['landlord']}>
+    <ProtectedRoute allowedRoles={['landlord']}>
       <Dashboard />
     </ProtectedRoute>
   )
@@ -96,7 +96,7 @@ function Dashboard() {
       setEditing(property)
       setForm({
         title: property.title || '',
-        address: property.address || property.address_text || '',
+        address: property.address || '',
         property_type: property.property_type || '1BR',
         price: property.price || '',
         deposit: property.deposit || '',
@@ -224,7 +224,7 @@ function Dashboard() {
                   <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
                     <div>
                       <div className="font-semibold text-xl">{property.title || 'Untitled property'}</div>
-                      <div className="text-sm text-anchorGray">{property.address || property.address_text}</div>
+                      <div className="text-sm text-anchorGray">{property.address || 'No address'}</div>
                     </div>
                     <div className="flex flex-wrap gap-2 text-xs">
                       <span className={`rounded-full px-2 py-1 ${property.verification_status === 'verified' ? 'bg-mintHint text-teal' : property.verification_status === 'rejected' ? 'bg-estateRed/10 text-estateRed' : 'bg-slate-100 text-slate-700'}`}>{property.verification_status || 'pending'}</span>

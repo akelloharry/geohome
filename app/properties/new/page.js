@@ -172,7 +172,7 @@ function NewPropertyForm() {
 
 export default function NewPropertyPage() {
   return (
-    <ProtectedRoute roles={["landlord"]}>
+    <ProtectedRoute allowedRoles={["landlord"]}>
       <NewPropertyForm />
     </ProtectedRoute>
   )

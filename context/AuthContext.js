@@ -48,21 +48,24 @@ export function AuthProvider({ children }) {
   }, [])
 
   // signUp supports passing metadata so DB trigger can create profile
-  const signUp = (email, password, full_name, phone, role = 'tenant') => {
+  const signUp = (email, password, first_name, last_name, phone, role = 'tenant') => {
     return supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { full_name, phone, role },
+        data: {
+          first_name,
+          last_name,
+          full_name: `${first_name} ${last_name}`,
+          phone,
+          role
+        },
         emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/login` : undefined
       }
     })
   }
 
-  const signIn = (email, password) => supabase.auth.signInWithPassword(
-    { email, password },
-    { redirectTo: typeof window !== 'undefined' ? window.location.origin : undefined }
-  )
+  const signIn = (email, password) => supabase.auth.signInWithPassword({ email, password })
   const signOut = async () => await supabase.auth.signOut()
 
   return (

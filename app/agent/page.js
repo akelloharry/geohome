@@ -229,7 +229,7 @@ function AgentPageInner() {
 
 export default function AgentPage() {
   return (
-    <ProtectedRoute roles={["agent"]}>
+    <ProtectedRoute allowedRoles={["agent"]}>
       <AgentPageInner />
     </ProtectedRoute>
   )

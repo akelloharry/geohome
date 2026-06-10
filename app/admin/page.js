@@ -87,7 +87,7 @@ function AdminInner() {
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <div className="font-semibold">{property.title || 'Untitled'}</div>
-                    <div className="text-sm text-anchorGray">{property.address || property.address_text}</div>
+                    <div className="text-sm text-anchorGray">{property.address || 'No address'}</div>
                   </div>
                   <div className="flex gap-2">
                     <button className="rounded-full bg-teal px-3 py-1 text-sm text-white" onClick={() => updatePropertyStatus(property.id, 'verified')}>Approve</button>
@@ -160,7 +160,7 @@ function AdminInner() {
 
 export default function AdminPage() {
   return (
-    <ProtectedRoute roles={["admin"]}>
+    <ProtectedRoute allowedRoles={["admin"]}>
       <AdminInner />
     </ProtectedRoute>
   )
