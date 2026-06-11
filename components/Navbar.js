@@ -20,6 +20,7 @@ export default function Navbar() {
             <a href="#tenants" className="hover:text-teal transition">Tenants</a>
             <a href="#landlords" className="hover:text-teal transition">Landlords</a>
             <a href="#how-it-works" className="hover:text-teal transition">How it works</a>
+            {user && <Link href="/chat" className="hover:text-teal transition">Messages</Link>}
             {role === 'landlord' && <Link href="/dashboard" className="hover:text-teal transition">Dashboard</Link>}
             {role === 'agent' && <Link href="/agent" className="hover:text-teal transition">Agent</Link>}
             {role === 'admin' && <Link href="/admin" className="hover:text-teal transition">Admin</Link>}

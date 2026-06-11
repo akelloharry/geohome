@@ -90,7 +90,17 @@ export default function Map({ center = [34.7617, -0.0917], properties = [], radi
       }
     }
 
-  }, [center, properties, pinLocation, draggable, onPinMove])
+    if (onMarkerClick) {
+      const handleMapClick = (event) => {
+        onMarkerClick([event.lngLat.lng, event.lngLat.lat])
+      }
+      map.on('click', handleMapClick)
+      return () => {
+        map.off('click', handleMapClick)
+      }
+    }
+
+  }, [center, properties, pinLocation, draggable, onPinMove, onMarkerClick])
 
   return <div ref={mapContainer} className="w-full h-96 rounded" />
 }

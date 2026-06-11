@@ -52,6 +52,9 @@ ALTER TABLE properties ADD COLUMN IF NOT EXISTS security text[];
 ALTER TABLE properties ADD COLUMN IF NOT EXISTS backup_power text;
 ALTER TABLE properties ADD COLUMN IF NOT EXISTS internet text;
 ALTER TABLE properties ADD COLUMN IF NOT EXISTS is_active boolean DEFAULT true;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS video_urls text[];
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS booked_dates date[];
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS unavailable_dates date[];
 
 -- Trigger to keep geom in sync
 CREATE OR REPLACE FUNCTION properties_set_geom() RETURNS trigger AS $$
@@ -207,4 +210,45 @@ CREATE TABLE IF NOT EXISTS transactions (
   status text DEFAULT 'held',
   release_date timestamptz,
   created_at timestamptz DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS units (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  property_id uuid REFERENCES properties(id) ON DELETE CASCADE,
+  name text,
+  property_type text,
+  bedrooms integer,
+  bathrooms integer,
+  rent_price integer,
+  deposit integer,
+  is_vacant boolean DEFAULT true,
+  available_from date,
+  photos text[],
+  video_url text,
+  created_at timestamptz DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS chat_threads (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  property_id uuid,
+  unit_id uuid,
+  landlord_id uuid,
+  tenant_id uuid,
+  status text DEFAULT 'open',
+  created_at timestamptz DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS chat_messages (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  thread_id uuid REFERENCES chat_threads(id) ON DELETE CASCADE,
+  sender_id uuid,
+  content text,
+  created_at timestamptz DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS property_views (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  property_id uuid,
+  user_id uuid,
+  viewed_at timestamptz DEFAULT now()
 );
