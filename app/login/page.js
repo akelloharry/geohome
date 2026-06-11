@@ -17,45 +17,51 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
 
-    const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password })
-    if (signInError) {
-      setError(signInError.message)
+    try {
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password })
+      if (signInError) {
+        setError(signInError.message)
+        setLoading(false)
+        return
+      }
+
+      // Fetch role from profiles
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', data.user.id)
+        .single()
+
+      if (profileError) {
+        setError('Could not retrieve user role. Please contact support.')
+        setLoading(false)
+        return
+      }
+
+      // Determine target URL
+      let target = '/'
+      switch (profile.role) {
+        case 'landlord':
+          target = '/dashboard'
+          break
+        case 'agent':
+          target = '/agent'
+          break
+        case 'admin':
+          target = '/admin'
+          break
+        default:
+          target = '/'
+      }
+
+      // Wait a moment for auth state to update, then navigate
+      await new Promise(resolve => setTimeout(resolve, 100))
       setLoading(false)
-      return
-    }
-
-    // Fetch role from profiles
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', data.user.id)
-      .single()
-
-    if (profileError) {
-      setError('Could not retrieve user role. Please contact support.')
+      router.push(target)
+    } catch (err) {
+      setError('An unexpected error occurred')
       setLoading(false)
-      return
     }
-
-    // Determine target URL
-    let target = '/'
-    switch (profile.role) {
-      case 'landlord':
-        target = '/dashboard'
-        break
-      case 'agent':
-        target = '/agent'
-        break
-      case 'admin':
-        target = '/admin'
-        break
-      default:
-        target = '/'
-    }
-
-    // Use Next.js router for proper client-side navigation
-    setLoading(false)
-    router.push(target)
   }
 
   return (

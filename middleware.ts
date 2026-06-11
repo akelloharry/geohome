@@ -13,11 +13,12 @@ export function middleware(req: NextRequest) {
   const isProtected = protectedRoutes.some((route) => pathname === route || pathname.startsWith(`${route}/`))
   if (!isProtected) return NextResponse.next()
 
-  // Check for Supabase auth cookie as a basic verification
-  const hasAuth = req.cookies.has('sb-access-token') || req.cookies.has('sb-session')
+  // Check for Supabase auth cookies - broader check for auth state
+  const hasAuth = req.cookies.has('sb-access-token') || req.cookies.has('sb-session') || req.cookies.has('sb-auth-token')
 
   if (!hasAuth) {
-    return NextResponse.redirect(new URL('/login', req.url))
+    // Allow the request through - client-side AuthContext will handle redirects
+    return NextResponse.next()
   }
 
   return NextResponse.next()

@@ -33,8 +33,12 @@ export function AuthProvider({ children }) {
 
     async function init() {
       setLoading(true)
-      const { data } = await supabase.auth.getSession()
-      await handleSession(data?.session ?? null)
+      try {
+        const { data } = await supabase.auth.getSession()
+        await handleSession(data?.session ?? null)
+      } catch (err) {
+        console.error('Auth init error:', err)
+      }
       if (!mounted) return
       setLoading(false)
     }
@@ -51,7 +55,9 @@ export function AuthProvider({ children }) {
 
     return () => {
       mounted = false
-      listener?.subscription?.unsubscribe && listener.subscription.unsubscribe()
+      if (listener?.subscription) {
+        listener.subscription.unsubscribe()
+      }
     }
   }, [])
 
