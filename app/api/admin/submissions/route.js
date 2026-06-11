@@ -30,7 +30,7 @@ export async function PATCH(req) {
       security: submission.security,
       backup_power: submission.backup_power,
       internet: submission.internet,
-      location: submission.longitude && submission.latitude ? `POINT(${submission.longitude} ${submission.latitude})` : null,
+      location: submission.lng && submission.lat ? `POINT(${submission.lng} ${submission.lat})` : null,
       verification_status: 'verified',
       available: true
     }

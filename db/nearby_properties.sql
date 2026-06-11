@@ -31,8 +31,8 @@ CREATE TABLE IF NOT EXISTS properties (
   security text[],
   backup_power text,
   internet text,
-  latitude double precision,
-  longitude double precision,
+  lat double precision,
+  lng double precision,
   geom geography(Point,4326),
   photos text[],
   sponsored boolean DEFAULT false,
@@ -59,8 +59,8 @@ ALTER TABLE properties ADD COLUMN IF NOT EXISTS unavailable_dates date[];
 -- Trigger to keep geom in sync
 CREATE OR REPLACE FUNCTION properties_set_geom() RETURNS trigger AS $$
 BEGIN
-  IF NEW.longitude IS NOT NULL AND NEW.latitude IS NOT NULL THEN
-    NEW.geom := ST_SetSRID(ST_MakePoint(NEW.longitude, NEW.latitude), 4326)::geography;
+  IF NEW.lng IS NOT NULL AND NEW.lat IS NOT NULL THEN
+    NEW.geom := ST_SetSRID(ST_MakePoint(NEW.lng, NEW.lat), 4326)::geography;
   END IF;
   RETURN NEW;
 END;

@@ -56,8 +56,8 @@ function AgentPageInner() {
     const payload = {
       ...form,
       agent_id: user.id,
-      latitude: location[1],
-      longitude: location[0],
+      lat: location[1],
+      lng: location[0],
       status: 'pending_review'
     }
 

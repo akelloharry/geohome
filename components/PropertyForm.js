@@ -99,8 +99,8 @@ export default function PropertyForm({ propertyId = null, initialProperty = null
       const payload = {
         title: form.title,
         address: form.address,
-        latitude: form.lat,
-        longitude: form.lng,
+        lat: form.lat,
+        lng: form.lng,
         water_supply: form.water_supply,
         water_supply_other: form.water_supply_other || null,
         electricity: form.electricity,
