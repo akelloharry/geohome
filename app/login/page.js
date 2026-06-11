@@ -53,21 +53,21 @@ export default function LoginPage() {
       const role = profileData?.role || 'tenant'
       console.log('Redirecting based on role:', role)
 
+      let target = '/'
       if (role === 'landlord') {
-        console.log('Pushing to /dashboard')
-        router.push('/dashboard')
+        target = '/dashboard'
       } else if (role === 'agent') {
-        console.log('Pushing to /agent')
-        router.push('/agent')
+        target = '/agent'
       } else if (role === 'admin') {
-        console.log('Pushing to /admin')
-        router.push('/admin')
-      } else {
-        console.log('Pushing to /')
-        router.push('/')
+        target = '/admin'
       }
+      console.log('Navigating to', target)
+      await router.replace(target)
 
-      setLoading(false)
+      if (typeof window !== 'undefined') {
+        window.location.assign(target)
+      }
+      return
     } catch (err) {
       console.error('Unexpected error:', err)
       setError('An unexpected error occurred. Please try again.')
