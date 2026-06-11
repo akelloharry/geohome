@@ -64,6 +64,16 @@ export default function LoginPage() {
       }
       console.log('Navigating to', target)
       router.push(target)
+
+      // Safety fallback: if router.push doesn't navigate within 1.5s, use hard redirect
+      // This is a pragmatic guard against Next.js router edge cases in production
+      const navigationFallback = setTimeout(() => {
+        if (window.location.pathname === '/login') {
+          console.warn('router.push did not complete navigation, falling back to window.location.href')
+          window.location.href = target
+        }
+      }, 1500)
+
       return
     } catch (err) {
       console.error('Unexpected error:', err)
