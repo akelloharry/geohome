@@ -63,14 +63,7 @@ export default function LoginPage() {
         target = '/admin'
       }
       console.log('Navigating to', target)
-      if (typeof window !== 'undefined') {
-        const destination = `${window.location.origin}${target}`
-        console.log('Performing hard redirect to', destination)
-        window.location.replace(destination)
-      } else if (router && typeof router.push === 'function') {
-        await router.push(target)
-        console.log('router.push resolved')
-      }
+      router.push(target)
       return
     } catch (err) {
       console.error('Unexpected error:', err)

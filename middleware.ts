@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 const protectedRoutes = ['/dashboard', '/agent', '/admin', '/properties/new']
-const authCookieNames = ['sb-access-token', 'sb-refresh-token', 'sb-auth-token']
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
@@ -14,9 +13,11 @@ export function middleware(req: NextRequest) {
   const isProtected = protectedRoutes.some((route) => pathname === route || pathname.startsWith(`${route}/`))
   if (!isProtected) return NextResponse.next()
 
-  const hasAuthCookie = authCookieNames.some((name) => req.cookies.has(name))
-  if (!hasAuthCookie) {
-    return NextResponse.redirect(new URL('/login', req.nextUrl.origin))
+  // Check for Supabase auth cookie as a basic verification
+  const hasAuth = req.cookies.has('sb-access-token') || req.cookies.has('sb-session')
+
+  if (!hasAuth) {
+    return NextResponse.redirect(new URL('/login', req.url))
   }
 
   return NextResponse.next()
