@@ -51,11 +51,11 @@ export default function LoginPage() {
         target = '/'
     }
 
-    // Hard redirect with delay to ensure Supabase session persists to cookies
-    // This prevents race condition where page reloads before session is ready
-    setTimeout(() => {
-      window.location.href = target
-    }, 500)
+    // Hard redirect immediately - log for debugging
+    console.log('Executing redirect to:', target)
+    console.log('window.location:', window.location)
+    window.location.href = target
+    console.log('Redirect command sent')
   }
 
   return (
