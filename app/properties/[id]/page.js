@@ -95,7 +95,7 @@ export default function PropertyDetail({ params }) {
           <div className="flex items-start justify-between gap-4">
             <div>
               <h1 className="text-3xl font-semibold">{property.title || 'Property details'}</h1>
-               <p className="text-sm text-anchorGray mt-2">{property.address || property.address_text || 'No address available'}</p>
+               <p className="text-sm text-anchorGray mt-2">{property.address || 'No address available'}</p>
             </div>
             <div className="text-right">
               <div className="text-2xl font-bold">KES {property.price || '—'}</div>

@@ -19,7 +19,6 @@ CREATE TABLE IF NOT EXISTS properties (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   title text,
   address text,
-  address_text text,
   price integer,
   deposit integer,
   bedrooms integer,
@@ -40,12 +39,11 @@ CREATE TABLE IF NOT EXISTS properties (
   available boolean DEFAULT true,
   is_active boolean DEFAULT true,
   verification_status text DEFAULT 'pending',
-  owner_id uuid,
+  landlord_id uuid,
   created_at timestamptz DEFAULT now()
 );
 
 ALTER TABLE properties ALTER COLUMN verification_status SET DEFAULT 'pending';
-ALTER TABLE properties ADD COLUMN IF NOT EXISTS address_text text;
 ALTER TABLE properties ADD COLUMN IF NOT EXISTS furnished boolean DEFAULT false;
 ALTER TABLE properties ADD COLUMN IF NOT EXISTS water_supply text;
 ALTER TABLE properties ADD COLUMN IF NOT EXISTS electricity text;
@@ -117,8 +115,8 @@ CREATE TABLE IF NOT EXISTS search_passes (
 
 ALTER TABLE search_passes ADD COLUMN IF NOT EXISTS paid_amount integer;
 
--- RPC: nearby_properties(lat, lng, radius)
-CREATE OR REPLACE FUNCTION nearby_properties(lat double precision, lng double precision, radius integer)
+-- RPC: nearby_properties(lat_param, lng_param, radius)
+CREATE OR REPLACE FUNCTION nearby_properties(lat_param double precision, lng_param double precision, radius integer)
 RETURNS TABLE (
   id uuid,
   title text,
@@ -135,16 +133,16 @@ RETURNS TABLE (
   sponsored boolean,
   available boolean,
   verification_status text,
-  owner_id uuid,
+  landlord_id uuid,
   created_at timestamptz,
   distance double precision
 ) AS $$
-  SELECT p.*, ST_Distance(p.geom, ST_SetSRID(ST_MakePoint(lng, lat), 4326)::geography) AS distance
+  SELECT p.*, ST_Distance(p.geom, ST_SetSRID(ST_MakePoint(lng_param, lat_param), 4326)::geography) AS distance
   FROM properties p
   WHERE p.verification_status = 'verified'
     AND p.available = true
     AND p.geom IS NOT NULL
-    AND ST_DWithin(p.geom, ST_SetSRID(ST_MakePoint(lng, lat), 4326)::geography, radius)
+    AND ST_DWithin(p.geom, ST_SetSRID(ST_MakePoint(lng_param, lat_param), 4326)::geography, radius)
   ORDER BY distance
   LIMIT 500;
 $$ LANGUAGE sql STABLE;

@@ -1,9 +1,11 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabaseClient'
 
 export default function LoginPage() {
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -51,11 +53,9 @@ export default function LoginPage() {
         target = '/'
     }
 
-    // Hard redirect immediately - log for debugging
-    console.log('Executing redirect to:', target)
-    console.log('window.location:', window.location)
-    window.location.href = target
-    console.log('Redirect command sent')
+    // Use Next.js router for proper client-side navigation
+    setLoading(false)
+    router.push(target)
   }
 
   return (
