@@ -13,38 +13,46 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let mounted = true
 
-    async function init() {
-      setLoading(true)
-      const res = await supabase.auth.getSession()
-      const session = res?.data?.session ?? null
+    const fetchProfile = async (id) => {
+      if (!id) return null
+      const { data: p, error } = await supabase.from('profiles').select('*').eq('id', id).maybeSingle()
+      return error ? null : p
+    }
+
+    const handleSession = async (session) => {
       if (!mounted) return
       setUser(session?.user ?? null)
-
       if (session?.user?.id) {
-        const { data: p, error } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle()
-        if (!error && mounted) setProfile(p ?? null)
+        const profileData = await fetchProfile(session.user.id)
+        if (!mounted) return
+        setProfile(profileData)
       } else {
         setProfile(null)
       }
+    }
 
+    async function init() {
+      setLoading(true)
+      const { data } = await supabase.auth.getSession()
+      await handleSession(data?.session ?? null)
+      if (!mounted) return
       setLoading(false)
     }
 
     init()
 
-    const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (!mounted) return
       setLoading(true)
-      setUser(session?.user ?? null)
-      if (session?.user?.id) {
-        const { data: p, error } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle()
-        if (!error) setProfile(p ?? null)
-      } else {
-        setProfile(null)
-      }
+      await handleSession(session)
+      if (!mounted) return
       setLoading(false)
     })
 
-    return () => { mounted = false; listener?.subscription?.unsubscribe && listener.subscription.unsubscribe() }
+    return () => {
+      mounted = false
+      listener?.subscription?.unsubscribe && listener.subscription.unsubscribe()
+    }
   }, [])
 
   // signUp supports passing metadata so DB trigger can create profile

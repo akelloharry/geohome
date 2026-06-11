@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -13,6 +13,7 @@ export default function LoginPage() {
 
   const handleLogin = async (e) => {
     e.preventDefault()
+    if (loading) return
     setError('')
     setLoading(true)
 
@@ -62,10 +63,12 @@ export default function LoginPage() {
         target = '/admin'
       }
       console.log('Navigating to', target)
-      await router.replace(target)
+      await router.push(target)
+      console.log('Redirect requested via router.push')
 
-      if (typeof window !== 'undefined') {
-        window.location.assign(target)
+      if (typeof window !== 'undefined' && window.location.pathname !== target) {
+        window.location.href = target
+        console.log('Fallback redirect via window.location.href')
       }
       return
     } catch (err) {

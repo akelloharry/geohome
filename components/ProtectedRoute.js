@@ -14,8 +14,9 @@ export default function ProtectedRoute({ children, allowedRoles }) {
       router.replace('/login')
       return
     }
+    if (!profile) return
 
-    const role = profile?.role ?? user?.user_metadata?.role ?? 'tenant'
+    const role = profile.role ?? user?.user_metadata?.role ?? 'tenant'
     if (allowedRoles && !allowedRoles.includes(role)) {
       if (role === 'landlord') router.replace('/dashboard')
       else if (role === 'agent') router.replace('/agent')
