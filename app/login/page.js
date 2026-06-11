@@ -1,78 +1,87 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 
 export default function LoginPage() {
-  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [checking, setChecking] = useState(true)
+
+  // Redirect already-authenticated users away from login
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+        if (profile) {
+          const roleMap = { landlord: '/dashboard', agent: '/agent', admin: '/admin', tenant: '/' }
+          window.location.href = roleMap[profile.role] || '/'
+        }
+      }
+      setChecking(false)
+    }
+    checkAuth()
+  }, [])
 
   const handleLogin = async (e) => {
     e.preventDefault()
     if (loading) return
-    setError('')
     setLoading(true)
+    setError('')
 
-    try {
-      // Step 1: Sign in
-      console.log('Attempting sign in with:', email)
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      })
-
-      if (authError) {
-        console.error('Auth error:', authError)
-        setError(authError.message)
-        setLoading(false)
-        return
-      }
-
-      console.log('Auth successful, user ID:', authData.user.id)
-
-      // Step 2: Fetch profile
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', authData.user.id)
-        .single()
-
-      if (profileError) {
-        console.error('Profile error:', profileError)
-        setError('Could not retrieve user profile. Please try again or contact support.')
-        setLoading(false)
-        return
-      }
-
-      console.log('Profile found, role:', profileData?.role)
-
-      // Step 3: Redirect based on role
-      const role = profileData?.role || 'tenant'
-      console.log('Redirecting based on role:', role)
-
-      let target = '/'
-      if (role === 'landlord') {
-        target = '/dashboard'
-      } else if (role === 'agent') {
-        target = '/agent'
-      } else if (role === 'admin') {
-        target = '/admin'
-      }
-      console.log('Navigating to', target)
-      // Use window.location.href for login redirect
-      // router.push is unreliable after auth in production; hard redirect is acceptable here
-      // All other redirects (homepage guard, protected routes) use router.push/router.replace
-      window.location.href = target
-      return
-    } catch (err) {
-      console.error('Unexpected error:', err)
-      setError('An unexpected error occurred. Please try again.')
+    const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password })
+    if (signInError) {
+      setError(signInError.message)
       setLoading(false)
+      return
     }
+
+    // Fetch role from profiles
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', data.user.id)
+      .single()
+
+    if (profileError) {
+      setError('Could not retrieve user role. Please contact support.')
+      setLoading(false)
+      return
+    }
+
+    // Determine target URL
+    let target = '/'
+    switch (profile.role) {
+      case 'landlord':
+        target = '/dashboard'
+        break
+      case 'agent':
+        target = '/agent'
+        break
+      case 'admin':
+        target = '/admin'
+        break
+      default:
+        target = '/'
+    }
+
+    // HARD REDIRECT – no router.push, no fallback
+    window.location.href = target
+  }
+
+  if (checking) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-teal"></div>
+      </div>
+    )
   }
 
   return (
