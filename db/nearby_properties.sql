@@ -9,10 +9,35 @@
 --
 -- Then run the rest of this file so tables like profiles and properties are created
 -- inside the expected schema instead of public.
+--
+-- NOTE: Column naming:
+-- - Properties table uses 'lat' and 'lng' (not 'latitude'/'longitude')
+-- - The 'geom' column (PostGIS geography) is kept in sync via trigger
+-- - If migrating from an older schema with latitude/longitude, they will be renamed
 
 -- Enable extensions
 CREATE EXTENSION IF NOT EXISTS postgis;
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+-- Migration: Rename latitude/longitude to lat/lng if they exist
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'properties' AND column_name = 'latitude'
+    AND table_schema = 'public' AND is_generated = 'NEVER'
+  ) THEN
+    EXECUTE 'ALTER TABLE public.properties RENAME COLUMN latitude TO lat';
+  END IF;
+  
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'properties' AND column_name = 'longitude'
+    AND table_schema = 'public' AND is_generated = 'NEVER'
+  ) THEN
+    EXECUTE 'ALTER TABLE public.properties RENAME COLUMN longitude TO lng';
+  END IF;
+END $$;
 
 -- Properties table
 CREATE TABLE IF NOT EXISTS properties (
