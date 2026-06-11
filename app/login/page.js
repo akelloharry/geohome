@@ -2,67 +2,76 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabaseClient'
 
 export default function LoginPage() {
-  const { signIn } = useAuth()
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
-  const [signingIn, setSigningIn] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const handleLogin = async (e) => {
     e.preventDefault()
     setError('')
-    setSigningIn(true)
+    setLoading(true)
 
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) {
-      console.error('Sign in error:', error)
-      setError(error.message)
-      setSigningIn(false)
-      return
-    }
+    try {
+      // Step 1: Sign in
+      console.log('Attempting sign in with:', email)
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      })
 
-    console.log('Sign in successful, user ID:', data.user.id)
+      if (authError) {
+        console.error('Auth error:', authError)
+        setError(authError.message)
+        setLoading(false)
+        return
+      }
 
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', data.user.id)
-      .single()
+      console.log('Auth successful, user ID:', authData.user.id)
 
-    if (profileError) {
-      console.error('Profile fetch error:', profileError)
-      setError('Could not retrieve user role. Please contact support.')
-      setSigningIn(false)
-      return
-    }
+      // Step 2: Fetch profile
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', authData.user.id)
+        .single()
 
-    console.log('Profile retrieved, role:', profile.role)
+      if (profileError) {
+        console.error('Profile error:', profileError)
+        setError('Could not retrieve user profile. Please try again or contact support.')
+        setLoading(false)
+        return
+      }
 
-    switch (profile.role) {
-      case 'landlord':
-        console.log('Redirecting to /dashboard')
+      console.log('Profile found, role:', profileData?.role)
+
+      // Step 3: Redirect based on role
+      const role = profileData?.role || 'tenant'
+      console.log('Redirecting based on role:', role)
+
+      if (role === 'landlord') {
+        console.log('Pushing to /dashboard')
         router.push('/dashboard')
-        break
-      case 'tenant':
-        console.log('Redirecting to /')
-        router.push('/')
-        break
-      case 'agent':
-        console.log('Redirecting to /agent')
+      } else if (role === 'agent') {
+        console.log('Pushing to /agent')
         router.push('/agent')
-        break
-      case 'admin':
-        console.log('Redirecting to /admin')
+      } else if (role === 'admin') {
+        console.log('Pushing to /admin')
         router.push('/admin')
-        break
-      default:
-        console.log('Unknown role, redirecting to /')
+      } else {
+        console.log('Pushing to /')
         router.push('/')
+      }
+
+      setLoading(false)
+    } catch (err) {
+      console.error('Unexpected error:', err)
+      setError('An unexpected error occurred. Please try again.')
+      setLoading(false)
     }
   }
 
@@ -70,11 +79,36 @@ export default function LoginPage() {
     <div className="max-w-md mx-auto">
       <h2 className="text-2xl mb-4">Login</h2>
       <form onSubmit={handleLogin} className="space-y-3">
-        <input required type="email" className="w-full border px-2 py-1" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} disabled={signingIn} />
-        <input required className="w-full border px-2 py-1" placeholder="Password" type="password" value={password} onChange={e=>setPassword(e.target.value)} disabled={signingIn} />
-        {error && <div className="text-estateRed">{error}</div>}
-        <button disabled={signingIn} className="bg-teal text-white px-4 py-2 rounded disabled:opacity-50">{signingIn ? 'Signing in...' : 'Login'}</button>
+        <input
+          required
+          type="email"
+          className="w-full border px-2 py-1"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          disabled={loading}
+        />
+        <input
+          required
+          type="password"
+          className="w-full border px-2 py-1"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          disabled={loading}
+        />
+        {error && <div className="text-estateRed text-sm">{error}</div>}
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-teal text-white px-4 py-2 rounded disabled:opacity-50 w-full"
+        >
+          {loading ? 'Logging in...' : 'Login'}
+        </button>
       </form>
+      <p className="text-sm text-anchorGray mt-4">
+        Don't have an account? <a href="/signup" className="text-teal">Sign up</a>
+      </p>
     </div>
   )
 }
