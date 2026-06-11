@@ -45,12 +45,12 @@ CREATE TABLE IF NOT EXISTS properties (
 
 ALTER TABLE properties ALTER COLUMN verification_status SET DEFAULT 'pending';
 ALTER TABLE properties ADD COLUMN IF NOT EXISTS furnished boolean DEFAULT false;
-ALTER TABLE properties ADD COLUMN IF NOT EXISTS water_supply text;
-ALTER TABLE properties ADD COLUMN IF NOT EXISTS electricity text;
-ALTER TABLE properties ADD COLUMN IF NOT EXISTS parking text;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS water_supply text[];
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS electricity text[];
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS parking text[];
 ALTER TABLE properties ADD COLUMN IF NOT EXISTS security text[];
-ALTER TABLE properties ADD COLUMN IF NOT EXISTS backup_power text;
-ALTER TABLE properties ADD COLUMN IF NOT EXISTS internet text;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS backup_power text[];
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS internet text[];
 ALTER TABLE properties ADD COLUMN IF NOT EXISTS is_active boolean DEFAULT true;
 ALTER TABLE properties ADD COLUMN IF NOT EXISTS video_urls text[];
 ALTER TABLE properties ADD COLUMN IF NOT EXISTS booked_dates date[];
@@ -121,34 +121,53 @@ ALTER TABLE search_passes ADD COLUMN IF NOT EXISTS paid_amount integer;
 -- RPC: nearby_properties(lat_param, lng_param, radius)
 CREATE OR REPLACE FUNCTION nearby_properties(lat_param double precision, lng_param double precision, radius integer)
 RETURNS TABLE (
-  id uuid,
-  title text,
-  address text,
-  price integer,
-  deposit integer,
-  bedrooms integer,
-  bathrooms integer,
-  property_type text,
-  latitude double precision,
-  longitude double precision,
-  geom geography(Point,4326),
-  photos text[],
-  sponsored boolean,
-  available boolean,
-  verification_status text,
-  landlord_id uuid,
-  created_at timestamptz,
-  distance double precision
-) AS $$
-  SELECT p.*, ST_Distance(p.geom, ST_SetSRID(ST_MakePoint(lng_param, lat_param), 4326)::geography) AS distance
+  id UUID,
+  title TEXT,
+  address TEXT,
+  price INT,
+  deposit INT,
+  bedrooms INT,
+  bathrooms INT,
+  property_type TEXT,
+  lat DOUBLE PRECISION,
+  lng DOUBLE PRECISION,
+  location GEOGRAPHY(POINT,4326),
+  photos TEXT[],
+  sponsored BOOLEAN,
+  available BOOLEAN,
+  verification_status TEXT,
+  landlord_id UUID,
+  created_at TIMESTAMPTZ,
+  distance DOUBLE PRECISION
+) LANGUAGE sql STABLE
+AS $$
+  SELECT 
+    p.id,
+    p.title,
+    p.address,
+    p.price,
+    p.deposit,
+    p.bedrooms,
+    p.bathrooms,
+    p.property_type,
+    p.latitude AS lat,
+    p.longitude AS lng,
+    p.geom AS location,
+    p.photos,
+    p.sponsored,
+    p.available,
+    p.verification_status,
+    p.landlord_id,
+    p.created_at,
+    ST_Distance(p.geom, ST_SetSRID(ST_MakePoint(lng_param, lat_param), 4326)::geography) AS distance
   FROM properties p
   WHERE p.verification_status = 'verified'
     AND p.available = true
-    AND p.geom IS NOT NULL
-    AND ST_DWithin(p.geom, ST_SetSRID(ST_MakePoint(lng_param, lat_param), 4326)::geography, radius)
+    AND p.location IS NOT NULL
+    AND ST_DWithin(p.location, ST_SetSRID(ST_MakePoint(lng_param, lat_param), 4326)::geography, radius)
   ORDER BY distance
   LIMIT 500;
-$$ LANGUAGE sql STABLE;
+$$
 
 -- Sample seed: properties near Kisumu (lat -0.0917, lng 34.7617)
 INSERT INTO properties (title, address, price, deposit, bedrooms, bathrooms, property_type, latitude, longitude, photos, sponsored)
@@ -228,6 +247,8 @@ CREATE TABLE IF NOT EXISTS units (
   created_at timestamptz DEFAULT now()
 );
 
+ALTER TABLE units ADD COLUMN IF NOT EXISTS booked_dates date[];
+
 CREATE TABLE IF NOT EXISTS chat_threads (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   property_id uuid,
@@ -243,8 +264,11 @@ CREATE TABLE IF NOT EXISTS chat_messages (
   thread_id uuid REFERENCES chat_threads(id) ON DELETE CASCADE,
   sender_id uuid,
   content text,
-  created_at timestamptz DEFAULT now()
+  created_at timestamptz DEFAULT now(),
+  read_at timestamptz
 );
+
+ALTER TABLE chat_messages ADD COLUMN IF NOT EXISTS read_at timestamptz;
 
 CREATE TABLE IF NOT EXISTS property_views (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
