@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 
 export default function LoginPage() {
@@ -8,27 +8,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [checking, setChecking] = useState(true)
-
-  // Redirect already-authenticated users away from login
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
-          .single()
-        if (profile) {
-          const roleMap = { landlord: '/dashboard', agent: '/agent', admin: '/admin', tenant: '/' }
-          window.location.href = roleMap[profile.role] || '/'
-        }
-      }
-      setChecking(false)
-    }
-    checkAuth()
-  }, [])
 
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -72,16 +51,11 @@ export default function LoginPage() {
         target = '/'
     }
 
-    // HARD REDIRECT – no router.push, no fallback
-    window.location.href = target
-  }
-
-  if (checking) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-teal"></div>
-      </div>
-    )
+    // Hard redirect with delay to ensure Supabase session persists to cookies
+    // This prevents race condition where page reloads before session is ready
+    setTimeout(() => {
+      window.location.href = target
+    }, 500)
   }
 
   return (
