@@ -21,7 +21,7 @@ export default function ChatPage() {
     setLoadingThreads(true)
     const role = profile?.role || user.user_metadata?.role
     const filter = role === 'landlord' ? { landlord_id: user.id } : { tenant_id: user.id }
-    const { data, error } = await supabase.from('chat_threads').select('*').match(filter).order('created_at', { ascending: false })
+    const { data, error } = await supabase.from('chat_threads').select('*, chat_messages(id, read_at)').match(filter).order('created_at', { ascending: false })
     if (error) {
       console.error(error)
       setThreads([])
@@ -53,7 +53,12 @@ export default function ChatPage() {
                     <div className="font-semibold">Property {thread.property_id}</div>
                     <div className="text-sm text-anchorGray">Unit {thread.unit_id || 'Default'} · Started {new Date(thread.created_at).toLocaleDateString()}</div>
                   </div>
-                  <div className="text-xs uppercase tracking-[0.16em] text-teal">Open thread</div>
+                  <div className="flex items-center gap-2">
+              <span className="text-xs uppercase tracking-[0.16em] text-teal">Open thread</span>
+              {thread.chat_messages?.some((msg) => !msg.read_at && msg.sender_id !== user.id) && (
+                <span className="rounded-full bg-estateRed/10 px-2 py-1 text-[10px] uppercase tracking-[0.16em] text-estateRed">New</span>
+              )}
+            </div>
                 </div>
               </Link>
             ))

@@ -29,8 +29,12 @@ export default function PropertyDetail({ params }) {
   }, [user, profile, id])
   useEffect(() => {
     if (!property) return
-    setBookedDates(property.booked_dates || property.unavailable_dates || [])
-  }, [property])
+    // Combine property-level booked dates and unit-level booked dates
+    const propDates = property.booked_dates || property.unavailable_dates || []
+    const unitDates = (units || []).flatMap((u) => u.booked_dates || [])
+    const all = Array.from(new Set([...(propDates || []), ...(unitDates || [])].map((d) => (d ? (new Date(d).toISOString().slice(0,10)) : null)).filter(Boolean)))
+    setBookedDates(all)
+  }, [property, units])
 
   async function fetchProperty() {
     const { data } = await supabase.from('properties').select('*').eq('id', id).single()
@@ -43,13 +47,33 @@ export default function PropertyDetail({ params }) {
     setUnits(unitData || [])
   }
 
-  async function fetchThread() {
+  useEffect(() => {
+    // Record a view for analytics when the property is loaded
+    if (!property) return
+    ;(async () => {
+      try {
+        await supabase.from('property_views').insert({ property_id: property.id, user_id: user?.id || null })
+      } catch (err) {
+        console.error('Failed to record property view', err)
+      }
+    })()
+  }, [property, user])
+
+  async function fetchThread(unitId = null) {
     if (!user) return
     const role = profile?.role || user?.user_metadata?.role
+    const baseQuery = supabase.from('chat_threads').select('*')
+      .eq('property_id', id)
+      .order('created_at', { ascending: false })
+
     const filter = role === 'landlord'
-      ? { property_id: id, landlord_id: user.id }
-      : { property_id: id, tenant_id: user.id }
-    const { data, error } = await supabase.from('chat_threads').select('*').match(filter).order('created_at', { ascending: false }).limit(1)
+      ? { landlord_id: user.id }
+      : { tenant_id: user.id }
+
+    baseQuery.match(filter)
+    if (unitId) baseQuery.eq('unit_id', unitId)
+
+    const { data, error } = await baseQuery.limit(1)
     if (error) {
       console.error(error)
       setThread(null)
@@ -98,9 +122,10 @@ export default function PropertyDetail({ params }) {
     }
   }
 
-  const startChat = async () => {
+  const startChat = async (unitId = null) => {
     if (!user) return alert('Please login to message the landlord')
-    if (thread) {
+    await fetchThread(unitId)
+    if (thread && thread.unit_id === unitId) {
       router.push(`/chat/${thread.id}`)
       return
     }
@@ -108,7 +133,7 @@ export default function PropertyDetail({ params }) {
       property_id: property.id,
       landlord_id: property.landlord_id,
       tenant_id: user.id,
-      unit_id: units?.[0]?.id || null,
+      unit_id: unitId,
       status: 'open'
     }).select('id').single()
     if (error || !data) {
@@ -172,24 +197,31 @@ export default function PropertyDetail({ params }) {
         <div className="rounded-3xl border bg-white p-6">
           <h2 className="text-xl font-semibold">Units</h2>
           {units.length ? (
-            <div className="mt-4 space-y-3">
-              {units.map((unit) => (
-                <div key={unit.id || unit.name} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <div className="font-semibold">{unit.name || 'Unit'}</div>
-                      <div className="text-sm text-anchorGray">{unit.property_type || 'Unit'} • {unit.bedrooms} bd • {unit.bathrooms} ba</div>
+            <div className="mt-4 grid gap-4">
+              {units
+                .filter((unit) => unit.is_vacant || (unit.available_from && new Date(unit.available_from) <= new Date()))
+                .map((unit) => (
+                  <div key={unit.id || unit.name} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <div className="font-semibold">{unit.name || 'Unit'}</div>
+                        <div className="text-sm text-anchorGray">{unit.property_type || 'Unit'} • {unit.bedrooms} bd • {unit.bathrooms} ba</div>
+                      </div>
+                      <span className={`rounded-full px-2 py-1 text-xs ${unit.is_vacant ? 'bg-mintHint text-teal' : 'bg-estateRed/10 text-estateRed'}`}>
+                        {unit.is_vacant ? 'Vacant' : 'Booked'}
+                      </span>
                     </div>
-                    <span className={`rounded-full px-2 py-1 text-xs ${unit.is_vacant ? 'bg-mintHint text-teal' : 'bg-estateRed/10 text-estateRed'}`}>
-                      {unit.is_vacant ? 'Vacant' : 'Booked'}
-                    </span>
+                    <div className="mt-3 grid gap-2 sm:grid-cols-2 text-sm text-anchorGray">
+                      <div>Rent: KES {unit.rent_price || '—'}</div>
+                      <div>Deposit: KES {unit.deposit || '—'}</div>
+                    </div>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <button className="rounded-full bg-teal px-4 py-2 text-sm text-white" onClick={() => startChat(unit.id)}>
+                        Inquire about this unit
+                      </button>
+                    </div>
                   </div>
-                  <div className="mt-3 grid gap-2 sm:grid-cols-2 text-sm text-anchorGray">
-                    <div>Rent: KES {unit.rent_price || '—'}</div>
-                    <div>Deposit: KES {unit.deposit || '—'}</div>
-                  </div>
-                </div>
-              ))}
+                ))}
             </div>
           ) : (
             <p className="mt-4 text-sm text-anchorGray">No individual units listed for this property.</p>

@@ -83,7 +83,7 @@ export default function PropertyForm({ propertyId = null, initialProperty = null
   const allWaterOptions = useMemo(() => waterOptions, [])
   const allElectricityOptions = useMemo(() => electricityOptions, [])
 
-  const canSubmit = form.title && form.address && form.water_supply.length > 0 && form.electricity.length > 0
+  const canSubmit = form.title && form.address && form.water_supply.length > 0 && form.electricity.length > 0 && units.length > 0
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -91,6 +91,8 @@ export default function PropertyForm({ propertyId = null, initialProperty = null
     if (saving) return
     if (!user) return setError('Please sign in as a landlord first.')
     if (!canSubmit) return setError('Please fill in the required fields.')
+    const invalidUnit = units.find((unit) => !unit.name || !unit.rent_price)
+    if (invalidUnit) return setError('Every unit needs a name and rent price.')
 
     setSaving(true)
     try {

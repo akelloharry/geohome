@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext'
 import ProtectedRoute from '../../components/ProtectedRoute'
 import { LineChart, BarChart } from '../../components/AnalyticsChart'
 import { supabase } from '../../lib/supabaseClient'
+import UnitsModal from '../../components/UnitsModal'
 
 export default function DashboardPage() {
   return (
@@ -23,6 +24,7 @@ function Dashboard() {
   const [transactions, setTransactions] = useState([])
   const [propertyViews, setPropertyViews] = useState([])
   const [inquiryStats, setInquiryStats] = useState([])
+  const [unitsOpenFor, setUnitsOpenFor] = useState(null)
 
   useEffect(() => {
     if (loading) return
@@ -42,6 +44,29 @@ function Dashboard() {
     const items = data || []
     setProperties(items)
     fetchAnalytics(items)
+    fetchUnitStats(items)
+  }
+
+  async function fetchUnitStats(propertyList) {
+    const propertyIds = propertyList.map((item) => item.id).filter(Boolean)
+    if (!propertyIds.length) {
+      setUnitStats({})
+      return
+    }
+    const { data, error } = await supabase.from('units').select('property_id, is_vacant').in('property_id', propertyIds)
+    if (error) {
+      console.error(error)
+      setUnitStats({})
+      return
+    }
+    const stats = {}
+    ;(data || []).forEach((unit) => {
+      const propertyId = unit.property_id
+      if (!stats[propertyId]) stats[propertyId] = { total: 0, vacant: 0 }
+      stats[propertyId].total += 1
+      if (unit.is_vacant) stats[propertyId].vacant += 1
+    })
+    setUnitStats(stats)
   }
 
   async function fetchAnalytics(propertyList) {
@@ -156,15 +181,17 @@ function Dashboard() {
                       <span className={`rounded-full px-2 py-1 ${property.available === false ? 'bg-estateRed/10 text-estateRed' : 'bg-mintHint text-teal'}`}>{property.available === false ? 'Inactive' : 'Active'}</span>
                     </div>
                   </div>
-                  <div className="mt-3 grid gap-2 sm:grid-cols-3 text-sm text-anchorGray">
+                  <div className="mt-3 grid gap-2 sm:grid-cols-4 text-sm text-anchorGray">
                     <div>Rent: KES {property.price || '—'}</div>
                     <div>Deposit: KES {property.deposit || '—'}</div>
                     <div>{property.bedrooms || '—'} bd • {property.bathrooms || '—'} ba</div>
+                    <div>{unitStats[property.id]?.total || 0} units • {unitStats[property.id]?.vacant || 0} vacant</div>
                   </div>
                   <div className="mt-3 flex flex-wrap gap-2">
                     <button className="rounded-full border border-teal px-3 py-1 text-sm text-teal" onClick={() => router.push(`/properties/${property.id}/edit`)}>Edit</button>
                     <button className="rounded-full border border-estateRed px-3 py-1 text-sm text-estateRed" onClick={() => toggleActive(property)}>{property.available === false ? 'Reactivate' : 'Deactivate'}</button>
                     <button className="rounded-full bg-white border px-3 py-1 text-sm text-anchorGray" onClick={() => router.push(`/properties/${property.id}`)}>View</button>
+                    <button className="rounded-full bg-white border px-3 py-1 text-sm text-anchorGray" onClick={() => setUnitsOpenFor(property.id)}>View units</button>
                   </div>
                 </div>
               )) : <div className="rounded-3xl border border-dashed border-slate-300 p-6 text-sm text-anchorGray">No properties yet. Add a property to start managing your listings.</div>}
@@ -215,12 +242,22 @@ function Dashboard() {
                 <div className="mt-2 text-2xl font-semibold">{properties.length}</div>
               </div>
               <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
-                <div className="text-sm text-anchorGray">Inbox inquiries</div>
-                <div className="mt-2 text-2xl font-semibold">{inquiries.length}</div>
+                <div className="text-sm text-anchorGray">Total views</div>
+                <div className="mt-2 text-2xl font-semibold">{propertyViews.reduce((sum, item) => sum + item.value, 0)}</div>
               </div>
               <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
-                <div className="text-sm text-anchorGray">Recent transactions</div>
-                <div className="mt-2 text-2xl font-semibold">{transactions.length}</div>
+                <div className="text-sm text-anchorGray">Total inquiries</div>
+                <div className="mt-2 text-2xl font-semibold">{inquiryStats.reduce((sum, item) => sum + item.value, 0)}</div>
+              </div>
+              <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+                <div className="text-sm text-anchorGray">Conversion rate</div>
+                <div className="mt-2 text-2xl font-semibold">
+                  {(() => {
+                    const views = propertyViews.reduce((sum, item) => sum + item.value, 0)
+                    const inquiries = inquiryStats.reduce((sum, item) => sum + item.value, 0)
+                    return views ? `${((inquiries / views) * 100).toFixed(0)}%` : '0%'
+                  })()}
+                </div>
               </div>
             </div>
           </div>
@@ -232,6 +269,7 @@ function Dashboard() {
           </div>
         </aside>
       </section>
+      <UnitsModal propertyId={unitsOpenFor} open={!!unitsOpenFor} onClose={() => setUnitsOpenFor(null)} />
     </div>
   )
 }

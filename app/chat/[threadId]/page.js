@@ -44,6 +44,11 @@ export default function ChatThreadPage({ params }) {
       return
     }
     setMessages(msgData || [])
+    const unread = msgData?.filter((msg) => msg.sender_id !== user.id && !msg.read_at) || []
+    if (unread.length) {
+      await supabase.from('chat_messages').update({ read_at: new Date().toISOString() }).in('id', unread.map((msg) => msg.id))
+      setMessages((current) => current.map((msg) => ({ ...msg, read_at: msg.read_at || new Date().toISOString() })))
+    }
   }
 
   const handleSend = async () => {
