@@ -58,8 +58,8 @@ export default function PropertyForm({ propertyId = null, initialProperty = null
     setForm({
       title: initialProperty.title || '',
       address: initialProperty.address || '',
-      lat: initialProperty.latitude ?? initialProperty.lat ?? 34.7617,
-      lng: initialProperty.longitude ?? initialProperty.lng ?? -0.0917,
+      lat: initialProperty.lat ?? initialProperty.latitude ?? 34.7617,
+      lng: initialProperty.lng ?? initialProperty.longitude ?? -0.0917,
       water_supply: initialProperty.water_supply || [],
       water_supply_other: initialProperty.water_supply_other || '',
       electricity: initialProperty.electricity || [],

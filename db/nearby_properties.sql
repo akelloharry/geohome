@@ -12,7 +12,7 @@
 --
 -- NOTE: Column naming:
 -- - Properties table uses 'lat' and 'lng' (not 'latitude'/'longitude')
--- - The 'geom' column (PostGIS geography) is kept in sync via trigger
+-- - The 'location' column (PostGIS geography) is kept in sync via trigger
 -- - If migrating from an older schema with latitude/longitude, they will be renamed
 
 -- Enable extensions
@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS properties (
   internet text,
   lat double precision,
   lng double precision,
-  geom geography(Point,4326),
+  location GEOGRAPHY(POINT,4326),
   photos text[],
   sponsored boolean DEFAULT false,
   available boolean DEFAULT true,
@@ -81,11 +81,11 @@ ALTER TABLE properties ADD COLUMN IF NOT EXISTS video_urls text[];
 ALTER TABLE properties ADD COLUMN IF NOT EXISTS booked_dates date[];
 ALTER TABLE properties ADD COLUMN IF NOT EXISTS unavailable_dates date[];
 
--- Trigger to keep geom in sync
+-- Trigger to keep location in sync
 CREATE OR REPLACE FUNCTION properties_set_geom() RETURNS trigger AS $$
 BEGIN
   IF NEW.lng IS NOT NULL AND NEW.lat IS NOT NULL THEN
-    NEW.geom := ST_SetSRID(ST_MakePoint(NEW.lng, NEW.lat), 4326)::geography;
+    NEW.location := ST_SetSRID(ST_MakePoint(NEW.lng, NEW.lat), 4326)::geography;
   END IF;
   RETURN NEW;
 END;
@@ -111,8 +111,8 @@ CREATE TABLE IF NOT EXISTS agent_submissions (
   security text[],
   backup_power text,
   internet text,
-  latitude double precision,
-  longitude double precision,
+  lat double precision,
+  lng double precision,
   landlord_name text,
   landlord_phone text,
   notes text,
@@ -175,16 +175,16 @@ AS $$
     p.bedrooms,
     p.bathrooms,
     p.property_type,
-    p.latitude AS lat,
-    p.longitude AS lng,
-    p.geom AS location,
+    p.lat AS lat,
+    p.lng AS lng,
+    p.location AS location,
     p.photos,
     p.sponsored,
     p.available,
     p.verification_status,
     p.landlord_id,
     p.created_at,
-    ST_Distance(p.geom, ST_SetSRID(ST_MakePoint(lng_param, lat_param), 4326)::geography) AS distance
+    ST_Distance(p.location, ST_SetSRID(ST_MakePoint(lng_param, lat_param), 4326)::geography) AS distance
   FROM properties p
   WHERE p.verification_status = 'verified'
     AND p.available = true
@@ -195,7 +195,7 @@ AS $$
 $$
 
 -- Sample seed: properties near Kisumu (lat -0.0917, lng 34.7617)
-INSERT INTO properties (title, address, price, deposit, bedrooms, bathrooms, property_type, latitude, longitude, photos, sponsored)
+INSERT INTO properties (title, address, price, deposit, bedrooms, bathrooms, property_type, lat, lng, photos, sponsored)
 VALUES
 ('Riverside Apartments', 'Along Kisumu River', 15000, 10000, 2, 1, 'rental', -0.0905, 34.7610, ARRAY['/placeholder.svg'], false),
 ('Campus View Hostel', 'Near University', 8000, 0, 6, 2, 'hostel', -0.0950, 34.7625, ARRAY['/placeholder.svg'], true),
