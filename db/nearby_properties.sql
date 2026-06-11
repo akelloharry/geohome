@@ -206,10 +206,13 @@ CREATE TABLE IF NOT EXISTS inquiries (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   property_id uuid,
   owner_id uuid,
+  landlord_id uuid,
   user_id uuid,
   message text,
   created_at timestamptz DEFAULT now()
 );
+
+ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS landlord_id uuid;
 
 CREATE TABLE IF NOT EXISTS viewing_requests (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -276,3 +279,20 @@ CREATE TABLE IF NOT EXISTS property_views (
   user_id uuid,
   viewed_at timestamptz DEFAULT now()
 );
+
+-- Minimal Row Level Security policies for client access (adjust for production)
+ALTER TABLE IF EXISTS inquiries ENABLE ROW LEVEL SECURITY;
+CREATE POLICY IF NOT EXISTS "inquiries_select_authenticated" ON inquiries FOR SELECT USING (auth.role() = 'authenticated');
+CREATE POLICY IF NOT EXISTS "inquiries_insert_authenticated" ON inquiries FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+
+ALTER TABLE IF EXISTS property_views ENABLE ROW LEVEL SECURITY;
+CREATE POLICY IF NOT EXISTS "property_views_insert_authenticated" ON property_views FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY IF NOT EXISTS "property_views_select_authenticated" ON property_views FOR SELECT USING (auth.role() = 'authenticated');
+
+ALTER TABLE IF EXISTS chat_threads ENABLE ROW LEVEL SECURITY;
+CREATE POLICY IF NOT EXISTS "chat_threads_select_authenticated" ON chat_threads FOR SELECT USING (auth.role() = 'authenticated');
+CREATE POLICY IF NOT EXISTS "chat_threads_insert_authenticated" ON chat_threads FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+
+ALTER TABLE IF EXISTS chat_messages ENABLE ROW LEVEL SECURITY;
+CREATE POLICY IF NOT EXISTS "chat_messages_select_authenticated" ON chat_messages FOR SELECT USING (auth.role() = 'authenticated');
+CREATE POLICY IF NOT EXISTS "chat_messages_insert_authenticated" ON chat_messages FOR INSERT WITH CHECK (auth.role() = 'authenticated');
