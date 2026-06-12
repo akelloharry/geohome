@@ -59,8 +59,6 @@ CREATE TABLE IF NOT EXISTS properties (
   lat double precision,
   lng double precision,
   location GEOGRAPHY(POINT,4326),
-  photos text[],
-  sponsored boolean DEFAULT false,
   available boolean DEFAULT true,
   is_active boolean DEFAULT true,
   verification_status text DEFAULT 'pending',
@@ -143,7 +141,14 @@ CREATE TABLE IF NOT EXISTS search_passes (
 
 ALTER TABLE search_passes ADD COLUMN IF NOT EXISTS paid_amount integer;
 
--- RPC: nearby_properties(lat_param, lng_param, radius)
+-- PRIORITY 2 – CORRECTED SPATIAL FUNCTIONS
+-- (No photos or sponsored columns in properties table)
+
+-- 1. Drop old versions
+DROP FUNCTION IF EXISTS nearby_properties(double precision, double precision, integer) CASCADE;
+DROP FUNCTION IF EXISTS properties_in_bbox(double precision, double precision, double precision, double precision) CASCADE;
+
+-- 2. Corrected nearby_properties (returns empty array for photos, false for sponsored)
 CREATE OR REPLACE FUNCTION nearby_properties(lat_param double precision, lng_param double precision, radius integer)
 RETURNS TABLE (
   id UUID,
@@ -175,11 +180,11 @@ AS $$
     p.bedrooms,
     p.bathrooms,
     p.property_type,
-    p.lat AS lat,
-    p.lng AS lng,
-    p.location AS location,
-    p.photos,
-    p.sponsored,
+    p.lat,
+    p.lng,
+    p.location,
+    ARRAY[]::TEXT[] AS photos,
+    false AS sponsored,
     p.available,
     p.verification_status,
     p.landlord_id,
@@ -194,12 +199,70 @@ AS $$
   LIMIT 500;
 $$
 
+-- 3. Corrected properties_in_bbox (area search)
+CREATE OR REPLACE FUNCTION properties_in_bbox(
+  min_lng double precision,
+  min_lat double precision,
+  max_lng double precision,
+  max_lat double precision
+)
+RETURNS TABLE (
+  id UUID,
+  title TEXT,
+  address TEXT,
+  price INT,
+  deposit INT,
+  bedrooms INT,
+  bathrooms INT,
+  property_type TEXT,
+  lat DOUBLE PRECISION,
+  lng DOUBLE PRECISION,
+  location GEOGRAPHY(POINT,4326),
+  photos TEXT[],
+  sponsored BOOLEAN,
+  available BOOLEAN,
+  verification_status TEXT,
+  landlord_id UUID,
+  created_at TIMESTAMPTZ
+) LANGUAGE sql STABLE
+AS $$
+  SELECT
+    p.id,
+    p.title,
+    p.address,
+    p.price,
+    p.deposit,
+    p.bedrooms,
+    p.bathrooms,
+    p.property_type,
+    p.lat,
+    p.lng,
+    p.location,
+    ARRAY[]::TEXT[] AS photos,
+    false AS sponsored,
+    p.available,
+    p.verification_status,
+    p.landlord_id,
+    p.created_at
+  FROM properties p
+  WHERE p.verification_status = 'verified'
+    AND p.available = true
+    AND p.location IS NOT NULL
+    AND p.lng BETWEEN min_lng AND max_lng
+    AND p.lat BETWEEN min_lat AND max_lat
+  ORDER BY p.created_at DESC
+  LIMIT 500;
+$$
+
+-- 4. Reload PostgREST schema cache
+NOTIFY pgrst, 'reload schema';
+
 -- Sample seed: properties near Kisumu (lat -0.0917, lng 34.7617)
-INSERT INTO properties (title, address, price, deposit, bedrooms, bathrooms, property_type, lat, lng, photos, sponsored)
+INSERT INTO properties (title, address, price, deposit, bedrooms, bathrooms, property_type, lat, lng)
 VALUES
-('Riverside Apartments', 'Along Kisumu River', 15000, 10000, 2, 1, 'rental', -0.0905, 34.7610, ARRAY['/placeholder.svg'], false),
-('Campus View Hostel', 'Near University', 8000, 0, 6, 2, 'hostel', -0.0950, 34.7625, ARRAY['/placeholder.svg'], true),
-('Cozy BnB', 'Central Kisumu', 5000, 0, 1, 1, 'bnb', -0.0919, 34.7630, ARRAY['/placeholder.svg'], false);
+('Riverside Apartments', 'Along Kisumu River', 15000, 10000, 2, 1, 'rental', -0.0905, 34.7610),
+('Campus View Hostel', 'Near University', 8000, 0, 6, 2, 'hostel', -0.0950, 34.7625),
+('Cozy BnB', 'Central Kisumu', 5000, 0, 1, 1, 'bnb', -0.0919, 34.7630);
 
 -- Profiles table and trigger for automatic profile creation from auth metadata
 CREATE TABLE IF NOT EXISTS profiles (

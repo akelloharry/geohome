@@ -1,31 +1,13 @@
 "use client"
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '../context/AuthContext'
+import { supabase } from '../lib/supabaseClient'
 import NearbySearch from '../components/NearbySearch'
 
-const properties = [
-  {
-    title: 'KES 25,000 / month',
-    desc: '2 bedroom, 1 bath • Milimani',
-    meta: '1.2 km from Kisumu CBD',
-    badge: 'Verified'
-  },
-  {
-    title: 'KES 12,000 / semester',
-    desc: 'Single room hostel • Near Maseno Uni',
-    meta: '0.8 km from main gate',
-    badge: 'Student hostel'
-  },
-  {
-    title: 'KES 3,500 / night',
-    desc: 'BnB • Lake view, fully furnished',
-    meta: '⭐ 4.9 (32 reviews)',
-    badge: 'Short stay'
-  }
-]
+const defaultCenter = [34.7617, -0.0917]
 
 const features = [
   {
@@ -66,6 +48,8 @@ const steps = [
 export default function HomePage() {
   const { user, profile, loading } = useAuth()
   const router = useRouter()
+  const [properties, setProperties] = useState([])
+  const [loadingProperties, setLoadingProperties] = useState(false)
 
   // Redirect non-tenant users to their role-specific dashboards
   useEffect(() => {
@@ -77,6 +61,29 @@ export default function HomePage() {
     if (role === 'agent') return router.replace('/agent')
     if (role === 'admin') return router.replace('/admin')
   }, [user, profile, loading, router])
+
+  useEffect(() => {
+    const fetchProperties = async () => {
+      setLoadingProperties(true)
+      try {
+        const payload = { lat_param: defaultCenter[1], lng_param: defaultCenter[0], radius: 3000 }
+        const { data, error } = await supabase.rpc('nearby_properties', payload)
+        if (error) {
+          console.error('nearby_properties RPC error:', error)
+          setProperties([])
+        } else {
+          setProperties((data || []).filter((p) => p.verification_status === 'verified' && (p.available ?? true)))
+        }
+      } catch (err) {
+        console.error(err)
+        setProperties([])
+      } finally {
+        setLoadingProperties(false)
+      }
+    }
+
+    fetchProperties()
+  }, [])
 
   // Show loading spinner while checking auth
   if (loading) {
@@ -147,14 +154,16 @@ export default function HomePage() {
           <a href="#properties" className="text-sm font-semibold text-teal hover:text-primary">View more</a>
         </div>
         <div className="mt-6 grid gap-6 md:grid-cols-3">
-          {properties.map((property) => (
-            <div key={property.title} className="rounded-[24px] bg-white p-6 shadow-lg transition hover:-translate-y-1">
+          {loadingProperties && <div className="text-sm text-anchorGray">Loading nearby properties…</div>}
+          {!loadingProperties && properties.length === 0 && <div className="text-sm text-anchorGray">No nearby verified rentals found yet.</div>}
+          {!loadingProperties && properties.map((property) => (
+            <div key={property.id} className="rounded-[24px] bg-white p-6 shadow-lg transition hover:-translate-y-1">
               <div className="property-img">📸 Property image</div>
               <div className="mt-4 space-y-2">
-                <div className="text-xl font-semibold text-teal">{property.title}</div>
-                <div className="text-sm text-primary">{property.desc}</div>
-                <div className="text-xs text-anchorGray">{property.meta}</div>
-                <span className="inline-flex rounded-full bg-mintHint px-3 py-1 text-xs font-semibold text-teal">{property.badge}</span>
+                <div className="text-xl font-semibold text-teal">{property.title || 'Rental'}</div>
+                <div className="text-sm text-primary">{property.address || 'Verified rental'}</div>
+                <div className="text-xs text-anchorGray">KES {property.price || '—'} • {property.bedrooms || '—'} bd • {property.bathrooms || '—'} ba</div>
+                <span className="inline-flex rounded-full bg-mintHint px-3 py-1 text-xs font-semibold text-teal">Verified</span>
               </div>
             </div>
           ))}

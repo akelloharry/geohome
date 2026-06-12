@@ -8,6 +8,7 @@ export default function PropertyCard({ property }) {
   const bedrooms = property.bedrooms ?? property.num_bedrooms ?? ''
   const photos = property.photos ?? property.images ?? property.image_urls ?? []
   const available = property.available ?? true
+  const driveMinutes = property.driveMinutes
 
   return (
     <div className="border rounded shadow-sm overflow-hidden bg-white">
@@ -22,6 +23,7 @@ export default function PropertyCard({ property }) {
         {address && <p className="text-sm text-anchorGray mt-1">{address}</p>}
         <p className="text-sm text-anchorGray mt-2">{bedrooms} bd • KES {price}</p>
         {property.distance && <p className="text-sm text-anchorGray">{property.distance.toFixed(1)}m away</p>}
+        {driveMinutes != null && <p className="text-sm text-anchorGray">~{driveMinutes} min drive</p>}
         <div className="mt-3">
           <Link href={`/properties/${property.id}`} className="text-sm text-teal font-medium">View details</Link>
         </div>

@@ -5,11 +5,12 @@ import mapboxgl from 'mapbox-gl'
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || ''
 
-export default function Map({ center = [34.7617, -0.0917], properties = [], radius = 0, onMarkerClick, onPinMove, draggable = false, pinLocation }) {
+export default function Map({ center = [34.7617, -0.0917], properties = [], radius = 0, onMarkerClick, onMapClick, onPinMove, draggable = false, pinLocation, bbox = null }) {
   const mapContainer = useRef(null)
   const mapRef = useRef(null)
   const markersRef = useRef([])
   const pinRef = useRef(null)
+  const bboxRef = useRef(null)
 
   // Defensive: if token missing, show placeholder
   if (!mapboxgl.accessToken) {
@@ -90,9 +91,57 @@ export default function Map({ center = [34.7617, -0.0917], properties = [], radi
       }
     }
 
-    if (onMarkerClick) {
+    if (bbox) {
+      const polygon = {
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            geometry: {
+              type: 'Polygon',
+              coordinates: [[
+                [bbox.minLng, bbox.minLat],
+                [bbox.maxLng, bbox.minLat],
+                [bbox.maxLng, bbox.maxLat],
+                [bbox.minLng, bbox.maxLat],
+                [bbox.minLng, bbox.minLat]
+              ]]
+            }
+          }
+        ]
+      }
+      if (map.getSource('bbox-source')) {
+        map.getSource('bbox-source').setData(polygon)
+      } else {
+        map.addSource('bbox-source', { type: 'geojson', data: polygon })
+        map.addLayer({
+          id: 'bbox-fill',
+          type: 'fill',
+          source: 'bbox-source',
+          paint: {
+            'fill-color': '#2c6e5c',
+            'fill-opacity': 0.15
+          }
+        })
+        map.addLayer({
+          id: 'bbox-line',
+          type: 'line',
+          source: 'bbox-source',
+          paint: {
+            'line-color': '#2c6e5c',
+            'line-width': 2
+          }
+        })
+      }
+    } else if (map.getSource('bbox-source')) {
+      if (map.getLayer('bbox-fill')) map.removeLayer('bbox-fill')
+      if (map.getLayer('bbox-line')) map.removeLayer('bbox-line')
+      map.removeSource('bbox-source')
+    }
+
+    if (onMapClick) {
       const handleMapClick = (event) => {
-        onMarkerClick([event.lngLat.lng, event.lngLat.lat])
+        onMapClick([event.lngLat.lng, event.lngLat.lat])
       }
       map.on('click', handleMapClick)
       return () => {
@@ -100,7 +149,7 @@ export default function Map({ center = [34.7617, -0.0917], properties = [], radi
       }
     }
 
-  }, [center, properties, pinLocation, draggable, onPinMove, onMarkerClick])
+  }, [center, properties, pinLocation, draggable, onPinMove, onMarkerClick, onMapClick, bbox])
 
   return <div ref={mapContainer} className="w-full h-96 rounded" />
 }

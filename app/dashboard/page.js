@@ -25,6 +25,7 @@ function Dashboard() {
   const [propertyViews, setPropertyViews] = useState([])
   const [inquiryStats, setInquiryStats] = useState([])
   const [unitsOpenFor, setUnitsOpenFor] = useState(null)
+  const [unitStats, setUnitStats] = useState({})
 
   useEffect(() => {
     if (loading) return
@@ -44,7 +45,11 @@ function Dashboard() {
     const items = data || []
     setProperties(items)
     fetchAnalytics(items)
-    fetchUnitStats(items)
+    try {
+      await fetchUnitStats(items)
+    } catch (err) {
+      console.error('fetchUnitStats failed:', err)
+    }
   }
 
   async function fetchUnitStats(propertyList) {
@@ -53,7 +58,7 @@ function Dashboard() {
       setUnitStats({})
       return
     }
-    const { data, error } = await supabase.from('units').select('property_id, is_vacant').in('property_id', propertyIds)
+    const { data, error } = await supabase.from('units').select('property_id, is_vacant, rent_price').in('property_id', propertyIds)
     if (error) {
       console.error(error)
       setUnitStats({})
