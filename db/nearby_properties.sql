@@ -19,6 +19,10 @@
 CREATE EXTENSION IF NOT EXISTS postgis;
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
+-- Create application schema for GeoHome and set search_path.
+CREATE SCHEMA IF NOT EXISTS geohomes;
+SET search_path = geohomes, public;
+
 -- Migration: Rename latitude/longitude to lat/lng if they exist
 DO $$
 BEGIN
