@@ -40,11 +40,17 @@ export default function NearbySearch() {
   }, [distanceMode, properties, center])
 
   async function loadProperties() {
-    setLoading(true)
     setError('')
+    if (searchMode === 'area' && !bbox) {
+      setError('Area search requires selecting a place with a region. Switch to radius search or choose a place with a bounding box.')
+      setProperties([])
+      setLoading(false)
+      return
+    }
+    setLoading(true)
     try {
       let data = []
-      if (searchMode === 'area' && bbox) {
+      if (searchMode === 'area') {
         const { data: bboxData, error: bboxError } = await supabase.rpc('properties_in_bbox', {
           min_lng: bbox.minLng,
           min_lat: bbox.minLat,
@@ -93,7 +99,11 @@ export default function NearbySearch() {
   }
 
   async function searchPlaces(query) {
-    if (!query || !mapboxToken) return
+    if (!query) return
+    if (!mapboxToken) {
+      setError('Mapbox geocoding unavailable. Set NEXT_PUBLIC_MAPBOX_TOKEN to use place search.')
+      return
+    }
     try {
       const response = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${mapboxToken}&country=ke&types=place,locality,neighborhood,district,address`)
       const json = await response.json()
@@ -101,6 +111,7 @@ export default function NearbySearch() {
     } catch (err) {
       console.error('Mapbox geocoding failed:', err)
       setSearchResults([])
+      setError('Unable to search places right now. Please try again later.')
     }
   }
 
@@ -143,7 +154,19 @@ export default function NearbySearch() {
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <label className="text-sm text-anchorGray">Search mode</label>
-            <select value={searchMode} onChange={(e) => setSearchMode(e.target.value)} className="border rounded px-3 py-2 text-sm">
+            <select
+              value={searchMode}
+              onChange={(e) => {
+                const nextMode = e.target.value
+                if (nextMode === 'area' && !bbox) {
+                  setError('Area search requires selecting a place with a bounding box.')
+                  return
+                }
+                setError('')
+                setSearchMode(nextMode)
+              }}
+              className="border rounded px-3 py-2 text-sm"
+            >
               <option value="radius">Radius</option>
               <option value="area">Area</option>
             </select>

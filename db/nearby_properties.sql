@@ -50,15 +50,17 @@ CREATE TABLE IF NOT EXISTS properties (
   bathrooms integer,
   property_type text,
   furnished boolean DEFAULT false,
-  water_supply text,
-  electricity text,
-  parking text,
+  water_supply text[],
+  electricity text[],
+  parking text[],
   security text[],
-  backup_power text,
-  internet text,
+  backup_power text[],
+  internet text[],
   lat double precision,
   lng double precision,
   location GEOGRAPHY(POINT,4326),
+  photos text[],
+  sponsored boolean DEFAULT false,
   available boolean DEFAULT true,
   is_active boolean DEFAULT true,
   verification_status text DEFAULT 'pending',
@@ -74,10 +76,65 @@ ALTER TABLE properties ADD COLUMN IF NOT EXISTS parking text[];
 ALTER TABLE properties ADD COLUMN IF NOT EXISTS security text[];
 ALTER TABLE properties ADD COLUMN IF NOT EXISTS backup_power text[];
 ALTER TABLE properties ADD COLUMN IF NOT EXISTS internet text[];
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS photos text[];
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS sponsored boolean DEFAULT false;
 ALTER TABLE properties ADD COLUMN IF NOT EXISTS is_active boolean DEFAULT true;
 ALTER TABLE properties ADD COLUMN IF NOT EXISTS video_urls text[];
 ALTER TABLE properties ADD COLUMN IF NOT EXISTS booked_dates date[];
 ALTER TABLE properties ADD COLUMN IF NOT EXISTS unavailable_dates date[];
+
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'properties'
+      AND column_name = 'water_supply'
+      AND data_type = 'text'
+  ) THEN
+    ALTER TABLE properties ALTER COLUMN water_supply TYPE text[] USING ARRAY[water_supply];
+  END IF;
+
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'properties'
+      AND column_name = 'electricity'
+      AND data_type = 'text'
+  ) THEN
+    ALTER TABLE properties ALTER COLUMN electricity TYPE text[] USING ARRAY[electricity];
+  END IF;
+
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'properties'
+      AND column_name = 'parking'
+      AND data_type = 'text'
+  ) THEN
+    ALTER TABLE properties ALTER COLUMN parking TYPE text[] USING ARRAY[parking];
+  END IF;
+
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'properties'
+      AND column_name = 'backup_power'
+      AND data_type = 'text'
+  ) THEN
+    ALTER TABLE properties ALTER COLUMN backup_power TYPE text[] USING ARRAY[backup_power];
+  END IF;
+
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'properties'
+      AND column_name = 'internet'
+      AND data_type = 'text'
+  ) THEN
+    ALTER TABLE properties ALTER COLUMN internet TYPE text[] USING ARRAY[internet];
+  END IF;
+END $$;
 
 -- Trigger to keep location in sync
 CREATE OR REPLACE FUNCTION properties_set_geom() RETURNS trigger AS $$
@@ -183,18 +240,28 @@ AS $$
     p.lat,
     p.lng,
     p.location,
-    ARRAY[]::TEXT[] AS photos,
-    false AS sponsored,
+    COALESCE(p.photos, ARRAY[]::TEXT[]) AS photos,
+    COALESCE(p.sponsored, FALSE) AS sponsored,
     p.available,
     p.verification_status,
     p.landlord_id,
     p.created_at,
-    ST_Distance(p.location, ST_SetSRID(ST_MakePoint(lng_param, lat_param), 4326)::geography) AS distance
+    ST_Distance(
+      COALESCE(p.location, ST_SetSRID(ST_MakePoint(p.lng, p.lat), 4326)::geography),
+      ST_SetSRID(ST_MakePoint(lng_param, lat_param), 4326)::geography
+    ) AS distance
   FROM properties p
   WHERE p.verification_status = 'verified'
     AND p.available = true
-    AND p.location IS NOT NULL
-    AND ST_DWithin(p.location, ST_SetSRID(ST_MakePoint(lng_param, lat_param), 4326)::geography, radius)
+    AND (
+      p.location IS NOT NULL
+      OR (p.lng IS NOT NULL AND p.lat IS NOT NULL)
+    )
+    AND ST_DWithin(
+      COALESCE(p.location, ST_SetSRID(ST_MakePoint(p.lng, p.lat), 4326)::geography),
+      ST_SetSRID(ST_MakePoint(lng_param, lat_param), 4326)::geography,
+      radius
+    )
   ORDER BY distance
   LIMIT 500;
 $$
@@ -238,8 +305,8 @@ AS $$
     p.lat,
     p.lng,
     p.location,
-    ARRAY[]::TEXT[] AS photos,
-    false AS sponsored,
+    COALESCE(p.photos, ARRAY[]::TEXT[]) AS photos,
+    COALESCE(p.sponsored, FALSE) AS sponsored,
     p.available,
     p.verification_status,
     p.landlord_id,
@@ -247,9 +314,12 @@ AS $$
   FROM properties p
   WHERE p.verification_status = 'verified'
     AND p.available = true
-    AND p.location IS NOT NULL
-    AND p.lng BETWEEN min_lng AND max_lng
-    AND p.lat BETWEEN min_lat AND max_lat
+    AND (
+      p.location IS NOT NULL
+      OR (p.lng IS NOT NULL AND p.lat IS NOT NULL)
+    )
+    AND COALESCE(p.lng, ST_X(p.location::geometry)) BETWEEN min_lng AND max_lng
+    AND COALESCE(p.lat, ST_Y(p.location::geometry)) BETWEEN min_lat AND max_lat
   ORDER BY p.created_at DESC
   LIMIT 500;
 $$

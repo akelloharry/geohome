@@ -34,7 +34,13 @@ export function AuthProvider({ children }) {
     async function init() {
       setLoading(true)
       try {
-        const { data } = await supabase.auth.getSession()
+        const { data, error } = await supabase.auth.getSession()
+        if (error) {
+          console.error('Auth init getSession error:', error)
+          if (error.status === 400 || error.message?.includes('refresh_token')) {
+            await supabase.auth.signOut()
+          }
+        }
         await handleSession(data?.session ?? null)
       } catch (err) {
         console.error('Auth init error:', err)

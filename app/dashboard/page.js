@@ -58,7 +58,7 @@ function Dashboard() {
       setUnitStats({})
       return
     }
-    const { data, error } = await supabase.from('units').select('property_id, is_vacant, rent_price').in('property_id', propertyIds)
+    const { data, error } = await supabase.from('units').select('property_id, is_vacant').in('property_id', propertyIds)
     if (error) {
       console.error(error)
       setUnitStats({})

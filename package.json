@@ -13,7 +13,9 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "@supabase/supabase-js": "2.0.0",
-    "mapbox-gl": "2.15.0"
+    "mapbox-gl": "2.15.0",
+    "react-map-gl": "^7.0.16",
+    "zustand": "^4.3.8"
   },
   "devDependencies": {
     "autoprefixer": "10.4.14",

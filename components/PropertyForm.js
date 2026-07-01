@@ -14,11 +14,17 @@ const backupOptions = ['None', 'Generator', 'Solar', 'Inverter']
 const internetOptions = ['None', 'Fiber', 'Wireless', 'Mobile']
 const parkingOptions = ['None', 'Street', 'Dedicated', 'Garage']
 
+const normalizeArray = (value) => {
+  if (Array.isArray(value)) return value
+  if (value == null) return []
+  return [value]
+}
+
 const blankProperty = {
   title: '',
   address: '',
-  lat: 34.7617,
-  lng: -0.0917,
+  lat: -0.0917,
+  lng: 34.7617,
   water_supply: [],
   water_supply_other: '',
   electricity: [],
@@ -58,19 +64,19 @@ export default function PropertyForm({ propertyId = null, initialProperty = null
     setForm({
       title: initialProperty.title || '',
       address: initialProperty.address || '',
-      lat: initialProperty.lat ?? initialProperty.latitude ?? 34.7617,
-      lng: initialProperty.lng ?? initialProperty.longitude ?? -0.0917,
-      water_supply: initialProperty.water_supply || [],
+      lat: initialProperty.lat ?? initialProperty.latitude ?? -0.0917,
+      lng: initialProperty.lng ?? initialProperty.longitude ?? 34.7617,
+      water_supply: normalizeArray(initialProperty.water_supply),
       water_supply_other: initialProperty.water_supply_other || '',
-      electricity: initialProperty.electricity || [],
-      security: initialProperty.security || [],
-      backup_power: initialProperty.backup_power || [],
-      internet: initialProperty.internet || [],
-      parking: initialProperty.parking || [],
+      electricity: normalizeArray(initialProperty.electricity),
+      security: normalizeArray(initialProperty.security),
+      backup_power: normalizeArray(initialProperty.backup_power),
+      internet: normalizeArray(initialProperty.internet),
+      parking: normalizeArray(initialProperty.parking),
       furnished: initialProperty.furnished ?? false,
       photos: initialProperty.photos || [],
       photoFiles: [],
-      videoUrls: initialProperty.video_urls || [],
+      videoUrls: normalizeArray(initialProperty.video_urls),
       videoFiles: []
     })
   }, [initialProperty])
@@ -275,7 +281,7 @@ export default function PropertyForm({ propertyId = null, initialProperty = null
                 pinLocation={[form.lng, form.lat]}
                 draggable
                 onPinMove={([lng, lat]) => setForm({ ...form, lng, lat })}
-                onMarkerClick={([lng, lat]) => setForm({ ...form, lng, lat })}
+                onMapClick={([lng, lat]) => setForm({ ...form, lng, lat })}
               />
             </div>
             <div className="mt-4 grid gap-4 md:grid-cols-2">

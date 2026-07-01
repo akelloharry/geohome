@@ -60,7 +60,7 @@ export default function PropertyDetail({ params }) {
   }, [property, user])
 
   async function fetchThread(unitId = null) {
-    if (!user) return
+    if (!user) return null
     const role = profile?.role || user?.user_metadata?.role
     const baseQuery = supabase.from('chat_threads').select('*')
       .eq('property_id', id)
@@ -77,9 +77,11 @@ export default function PropertyDetail({ params }) {
     if (error) {
       console.error(error)
       setThread(null)
-      return
+      return null
     }
-    setThread((data || [])[0] || null)
+    const foundThread = (data || [])[0] || null
+    setThread(foundThread)
+    return foundThread
   }
 
   async function fetchSearchPass() {
@@ -124,9 +126,9 @@ export default function PropertyDetail({ params }) {
 
   const startChat = async (unitId = null) => {
     if (!user) return alert('Please login to message the landlord')
-    await fetchThread(unitId)
-    if (thread && thread.unit_id === unitId) {
-      router.push(`/chat/${thread.id}`)
+    const existingThread = await fetchThread(unitId)
+    if (existingThread && existingThread.unit_id === unitId) {
+      router.push(`/chat/${existingThread.id}`)
       return
     }
     const { data, error } = await supabase.from('chat_threads').insert({
@@ -186,11 +188,11 @@ export default function PropertyDetail({ params }) {
             <div>Bathrooms: {property.bathrooms ?? '—'}</div>
             <div>Status: {property.verification_status || 'pending'} / {property.available === false ? 'Inactive' : 'Active'}</div>
             <div>Furnished: {property.furnished ? 'Yes' : 'No'}</div>
-            <div>Water: {property.water_supply || 'N/A'}</div>
-            <div>Electricity: {property.electricity || 'N/A'}</div>
-            <div>Parking: {property.parking || 'N/A'}</div>
-            <div>Backup power: {property.backup_power || 'N/A'}</div>
-            <div>Internet: {property.internet || 'N/A'}</div>
+            <div>Water: {(Array.isArray(property.water_supply) ? property.water_supply.join(', ') : property.water_supply) || 'N/A'}</div>
+            <div>Electricity: {(Array.isArray(property.electricity) ? property.electricity.join(', ') : property.electricity) || 'N/A'}</div>
+            <div>Parking: {(Array.isArray(property.parking) ? property.parking.join(', ') : property.parking) || 'N/A'}</div>
+            <div>Backup power: {(Array.isArray(property.backup_power) ? property.backup_power.join(', ') : property.backup_power) || 'N/A'}</div>
+            <div>Internet: {(Array.isArray(property.internet) ? property.internet.join(', ') : property.internet) || 'N/A'}</div>
           </div>
         </div>
 
@@ -215,11 +217,15 @@ export default function PropertyDetail({ params }) {
                       <div>Rent: KES {unit.rent_price || '—'}</div>
                       <div>Deposit: KES {unit.deposit || '—'}</div>
                     </div>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      <button className="rounded-full bg-teal px-4 py-2 text-sm text-white" onClick={() => startChat(unit.id)}>
-                        Inquire about this unit
-                      </button>
-                    </div>
+                    {role === 'tenant' ? (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <button className="rounded-full bg-teal px-4 py-2 text-sm text-white" onClick={() => startChat(unit.id)}>
+                          Inquire about this unit
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="mt-3 text-sm text-anchorGray">Login as a tenant to inquire about this unit.</div>
+                    )}
                   </div>
                 ))}
             </div>

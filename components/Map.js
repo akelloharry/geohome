@@ -1,7 +1,8 @@
 "use client"
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import mapboxgl from 'mapbox-gl'
+import useMapStore from '../lib/useMapStore'
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || ''
 
@@ -11,6 +12,9 @@ export default function Map({ center = [34.7617, -0.0917], properties = [], radi
   const markersRef = useRef([])
   const pinRef = useRef(null)
   const bboxRef = useRef(null)
+  const [geoPending, setGeoPending] = useState(false)
+  const [userLocation, setUserLocation] = useState(null)
+  const setStoreLocation = useMapStore(state => state.setUserLocation)
 
   // Defensive: if token missing, show placeholder
   if (!mapboxgl.accessToken) {
@@ -19,19 +23,34 @@ export default function Map({ center = [34.7617, -0.0917], properties = [], radi
 
   useEffect(() => {
     if (mapRef.current) return
+    // initial center: use provided center prop; we'll fly to user location when available
+    const initialCenter = center || [36.82, -1.29]
+    const initialZoom = 6
+
     mapRef.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v12',
-      center: center,
-      zoom: 13
+      center: initialCenter,
+      zoom: initialZoom
     })
     mapRef.current.addControl(new mapboxgl.NavigationControl())
+
+    // Add Mapbox Geolocate control (top-right)
+    const geolocate = new mapboxgl.GeolocateControl({
+      positionOptions: { enableHighAccuracy: true },
+      trackUserLocation: true,
+      showUserHeading: true
+    })
+    mapRef.current.addControl(geolocate, 'top-right')
   }, [])
 
   useEffect(() => {
     const map = mapRef.current
     if (!map) return
-    map.setCenter(center)
+
+    // If user location exists, prefer it
+    const targetCenter = userLocation || center
+    map.setCenter(targetCenter)
 
     // clear existing markers
     markersRef.current.forEach(m => m.remove())
@@ -149,7 +168,68 @@ export default function Map({ center = [34.7617, -0.0917], properties = [], radi
       }
     }
 
-  }, [center, properties, pinLocation, draggable, onPinMove, onMarkerClick, onMapClick, bbox])
+  }, [center, properties, pinLocation, draggable, onPinMove, onMarkerClick, onMapClick, bbox, userLocation])
 
-  return <div ref={mapContainer} className="w-full h-96 rounded" />
+  // Request browser geolocation on mount
+  useEffect(() => {
+    if (!('geolocation' in navigator)) {
+      setGeoPending(false)
+      return
+    }
+
+    setGeoPending(true)
+
+    const success = (position) => {
+      const coords = [position.coords.longitude, position.coords.latitude]
+      setUserLocation(coords)
+      try { setStoreLocation(coords) } catch (e) {}
+      setGeoPending(false)
+      // if map already initialized, fly to user
+      if (mapRef.current) {
+        mapRef.current.flyTo({ center: coords, zoom: 12, essential: true })
+      }
+    }
+
+    const error = (err) => {
+      console.warn('Geolocation error:', err && err.message)
+      setGeoPending(false)
+    }
+
+    navigator.geolocation.getCurrentPosition(success, error, { enableHighAccuracy: true, timeout: 3000, maximumAge: 60000 })
+  }, [])
+
+  // Locate-me button handler
+  function handleLocateMe() {
+    if (userLocation && mapRef.current) {
+      mapRef.current.flyTo({ center: userLocation, zoom: 12, essential: true })
+      return
+    }
+
+    if (!('geolocation' in navigator)) return
+    setGeoPending(true)
+    navigator.geolocation.getCurrentPosition((position) => {
+      const coords = [position.coords.longitude, position.coords.latitude]
+      setUserLocation(coords)
+      try { setStoreLocation(coords) } catch (e) {}
+      setGeoPending(false)
+      if (mapRef.current) mapRef.current.flyTo({ center: coords, zoom: 12, essential: true })
+    }, (err) => {
+      console.warn('Geolocation error:', err && err.message)
+      setGeoPending(false)
+    }, { enableHighAccuracy: true, timeout: 3000 })
+  }
+
+  return (
+    <div className="relative">
+      <div ref={mapContainer} className="w-full h-96 rounded" />
+      <div style={{ position: 'absolute', right: 12, bottom: 12, zIndex: 1000 }}>
+        <button onClick={handleLocateMe} className="bg-white px-3 py-2 rounded shadow">Locate me</button>
+      </div>
+      {geoPending && (
+        <div style={{ position: 'absolute', left: 12, top: 12, zIndex: 1000 }}>
+          <div className="bg-white px-3 py-2 rounded shadow">Locating…</div>
+        </div>
+      )}
+    </div>
+  )
 }
