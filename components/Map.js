@@ -48,27 +48,25 @@ export default function Map({ center = [34.7617, -0.0917], properties = [], radi
     const map = mapRef.current
     if (!map) return
 
-    // If user location exists, prefer it
     const targetCenter = userLocation || center
-    map.setCenter(targetCenter)
+    map.flyTo({ center: targetCenter, zoom: 11, essential: true })
 
-    // clear existing markers
-    markersRef.current.forEach(m => m.remove())
+    markersRef.current.forEach((m) => m.remove())
     markersRef.current = []
 
-    properties.forEach(p => {
+    properties.forEach((p) => {
       const lat = p.lat ?? p.latitude ?? (p.location && p.location.coordinates ? p.location.coordinates[1] : null)
       const lng = p.lng ?? p.longitude ?? (p.location && p.location.coordinates ? p.location.coordinates[0] : null)
       if (lat == null || lng == null) return
 
       const el = document.createElement('div')
       el.className = 'marker'
-      el.style.width = '28px'
-      el.style.height = '28px'
+      el.style.width = '32px'
+      el.style.height = '32px'
       el.style.borderRadius = '50%'
-      el.style.border = '3px solid white'
+      el.style.border = '3px solid #ffffff'
       el.style.cursor = 'pointer'
-      el.style.boxShadow = '0 8px 24px rgba(30,111,223,0.28)'
+      el.style.boxShadow = '0 10px 28px rgba(30,111,223,0.3)'
       const available = p.available ?? true
       const color = available === false ? '#EF4444' : '#1E6FDF'
       el.style.background = color
@@ -77,14 +75,19 @@ export default function Map({ center = [34.7617, -0.0917], properties = [], radi
 
       const title = p.title || 'Property'
       const address = p.address || ''
-      const price = p.price != null ? `KES ${p.price}` : ''
+      const price = p.price != null ? `KES ${p.price}` : 'Price N/A'
       const bedrooms = p.bedrooms != null ? `${p.bedrooms} bd` : ''
       const bathrooms = p.bathrooms != null ? `${p.bathrooms} ba` : ''
       const propertyType = p.property_type || ''
       const details = [propertyType, bedrooms, bathrooms, price].filter(Boolean).join(' • ')
       const propertyLink = p.id ? `/properties/${p.id}` : '#'
-      const popupHtml = `<div style="font-family:system-ui, sans-serif; font-size:13px;line-height:1.5;max-width:260px;color:#111827;"><strong style="display:block;margin-bottom:6px;color:#1E293B;">${title}</strong>${details ? `<div style="margin-bottom:8px;color:#374151;">${details}</div>` : ''}<a href="${propertyLink}" style="display:inline-block;padding:8px 10px;border-radius:9999px;background:#1E6FDF;color:#ffffff;text-decoration:none;font-weight:600;">View details</a></div>`
-      const popup = new mapboxgl.Popup({ offset: 25, closeButton: false }).setHTML(popupHtml)
+      const popupHtml = `<div style="font-family:'Open Sans', sans-serif; font-size:14px; line-height:1.6; max-width:280px; color:#1F2937;">
+        <strong style="display:block; margin-bottom:8px; color:#1F2937; font-size:15px;">${title}</strong>
+        ${address ? `<div style="margin-bottom:8px; color:#4B5563;">${address}</div>` : ''}
+        ${details ? `<div style="margin-bottom:12px; color:#4B5563;">${details}</div>` : ''}
+        <a href="${propertyLink}" style="display:inline-flex; align-items:center; justify-content:center; padding:10px 12px; border-radius:9999px; background:#1E6FDF; color:#ffffff; text-decoration:none; font-weight:700; font-size:13px;">View details</a>
+      </div>`
+      const popup = new mapboxgl.Popup({ offset: 25, closeButton: false, className: 'geo-popup' }).setHTML(popupHtml)
       marker.setPopup(popup)
 
       if (onMarkerClick) {
@@ -226,11 +229,13 @@ export default function Map({ center = [34.7617, -0.0917], properties = [], radi
     <div className={`relative ${className}`}>
       <div ref={mapContainer} className="w-full h-full" />
       <div style={{ position: 'absolute', right: 12, bottom: 12, zIndex: 1000 }}>
-        <button onClick={handleLocateMe} className="bg-white px-3 py-2 rounded shadow">Locate me</button>
+        <button onClick={handleLocateMe} className="rounded-full bg-lake-blue px-3 py-2 text-sm font-semibold text-white shadow-lg shadow-lake-blue/20 transition hover:bg-[#1556b9]">
+          Locate me
+        </button>
       </div>
       {geoPending && (
         <div style={{ position: 'absolute', left: 12, top: 12, zIndex: 1000 }}>
-          <div className="bg-white px-3 py-2 rounded shadow">Locating…</div>
+          <div className="rounded-full bg-cloud-fluff px-3 py-2 text-sm font-semibold text-midnight-soil shadow-lg shadow-slate-900/20">Locating…</div>
         </div>
       )}
     </div>

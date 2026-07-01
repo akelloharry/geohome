@@ -6,15 +6,15 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#1E3A4D',
-        teal: '#2C6E5C',
-        mutedTeal: '#5F8A7B',
-        paleSteel: '#BECCD9',
-        midnight: '#1F2937',
-        anchorGray: '#5B6F82',
-        cloud: '#F4F6F9',
-        estateRed: '#B26A5C',
-        mintHint: '#D9E8E2'
+        'lake-blue': '#1E6FDF',
+        'sunset-orange': '#F59E0B',
+        'acacia-green': '#10B981',
+        'savannah-red': '#EF4444',
+        'midnight-soil': '#1F2937',
+        'baobab-bark': '#6B7280',
+        'cloud-fluff': '#F9FAFB',
+        'geohome-gold': '#FBBF24',
+        'trust-teal': '#14B8A6'
       },
       fontFamily: {
         heading: ['Merriweather', 'serif'],
