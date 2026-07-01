@@ -188,8 +188,8 @@ export default function UnitManager({ units, setUnits, onDeleteUnit }) {
           <p className="text-sm text-anchorGray">Define single-unit or multi-unit properties with templates and generated units.</p>
         </div>
         <div className="flex items-center gap-2 rounded-full border bg-slate-50 p-2">
-          <button type="button" className={`rounded-full px-4 py-2 text-sm ${unitMode === 'single' ? 'bg-teal text-white' : 'text-slate-600'}`} onClick={() => setUnitMode('single')}>Single unit</button>
-          <button type="button" className={`rounded-full px-4 py-2 text-sm ${unitMode === 'multi' ? 'bg-teal text-white' : 'text-slate-600'}`} onClick={() => setUnitMode('multi')}>Multi-unit</button>
+          <button type="button" className={`rounded-full px-4 py-2 text-sm ${unitMode === 'single' ? 'bg-official-teal text-white' : 'text-slate-600'}`} onClick={() => setUnitMode('single')}>Single unit</button>
+          <button type="button" className={`rounded-full px-4 py-2 text-sm ${unitMode === 'multi' ? 'bg-official-teal text-white' : 'text-slate-600'}`} onClick={() => setUnitMode('multi')}>Multi-unit</button>
         </div>
       </div>
 
@@ -246,8 +246,8 @@ export default function UnitManager({ units, setUnits, onDeleteUnit }) {
                 <p className="text-sm text-anchorGray">Define templates for similar units, then generate concrete units.</p>
               </div>
               <div className="flex gap-2">
-                <button type="button" className="rounded-full bg-teal px-4 py-2 text-sm text-white" onClick={addTemplate}>Add unit type</button>
-                <button type="button" className="rounded-full border border-teal px-4 py-2 text-sm text-teal" onClick={generateUnits} disabled={templates.length === 0}>Generate units</button>
+                <button type="button" className="rounded-full bg-official-teal px-4 py-2 text-sm text-white" onClick={addTemplate}>Add unit type</button>
+                <button type="button" className="rounded-full border border-official-teal px-4 py-2 text-sm text-official-teal" onClick={generateUnits} disabled={templates.length === 0}>Generate units</button>
               </div>
             </div>
             {templates.length === 0 ? (
@@ -268,7 +268,7 @@ export default function UnitManager({ units, setUnits, onDeleteUnit }) {
                         <input type="number" min="1" value={template.quantity} onChange={(e) => updateTemplate(index, { quantity: Number(e.target.value) })} className="w-full rounded-3xl border px-4 py-3" placeholder="Qty" />
                         <input type="text" value={template.prefix} onChange={(e) => updateTemplate(index, { prefix: e.target.value })} className="w-full rounded-3xl border px-4 py-3" placeholder="Prefix" />
                       </div>
-                      <button type="button" className="rounded-full border border-estateRed px-4 py-3 text-sm text-estateRed" onClick={() => removeTemplate(index)}>Remove</button>
+                      <button type="button" className="rounded-full border border-estate-red px-4 py-3 text-sm text-estate-red" onClick={() => removeTemplate(index)}>Remove</button>
                     </div>
                   ))}
                 </div>
@@ -282,18 +282,18 @@ export default function UnitManager({ units, setUnits, onDeleteUnit }) {
                 <h3 className="text-lg font-semibold">Individual units</h3>
                 <p className="text-sm text-anchorGray">Edit generated units, add exceptions, and manage availability.</p>
               </div>
-              <button type="button" className="rounded-full bg-teal px-4 py-2 text-sm text-white" onClick={addSingleUnit}>Add single unit</button>
+              <button type="button" className="rounded-full bg-official-teal px-4 py-2 text-sm text-white" onClick={addSingleUnit}>Add single unit</button>
             </div>
 
             {selectedIds.size > 0 && (
               <div className="mt-4 grid gap-3 md:grid-cols-4">
-                <button type="button" className="rounded-full bg-mintHint px-4 py-2 text-sm text-teal" onClick={() => bulkUpdateVacancy(true)}>Mark vacant</button>
-                <button type="button" className="rounded-full bg-estateRed/10 px-4 py-2 text-sm text-estateRed" onClick={() => bulkUpdateVacancy(false)}>Mark occupied</button>
+                <button type="button" className="rounded-full bg-mint-hint px-4 py-2 text-sm text-official-teal" onClick={() => bulkUpdateVacancy(true)}>Mark vacant</button>
+                <button type="button" className="rounded-full bg-estate-red/10 px-4 py-2 text-sm text-estate-red" onClick={() => bulkUpdateVacancy(false)}>Mark occupied</button>
                 <div className="flex items-center gap-2 rounded-3xl border border-slate-200 bg-white px-4 py-3">
                   <input type="date" value={bulkDate} onChange={(e) => setBulkDate(e.target.value)} className="w-full rounded-lg border px-3 py-2" />
-                  <button type="button" className="rounded-full bg-teal px-4 py-2 text-sm text-white" onClick={bulkSetAvailableFrom}>Apply</button>
+                  <button type="button" className="rounded-full bg-official-teal px-4 py-2 text-sm text-white" onClick={bulkSetAvailableFrom}>Apply</button>
                 </div>
-                <button type="button" className="rounded-full border border-estateRed px-4 py-2 text-sm text-estateRed" onClick={bulkDelete}>Delete selected</button>
+                <button type="button" className="rounded-full border border-estate-red px-4 py-2 text-sm text-estate-red" onClick={bulkDelete}>Delete selected</button>
               </div>
             )}
 
@@ -325,8 +325,8 @@ export default function UnitManager({ units, setUnits, onDeleteUnit }) {
                         <td className="px-4 py-3">KES {unit.rent_price || '—'}</td>
                         <td className="px-4 py-3">{unit.available_from || '—'}</td>
                         <td className="px-4 py-3 flex flex-wrap gap-2">
-                          <button type="button" className="rounded-full border border-teal px-3 py-1 text-sm text-teal" onClick={() => setEditingUnit(unit)}>Edit</button>
-                          <button type="button" className="rounded-full border border-estateRed px-3 py-1 text-sm text-estateRed" onClick={() => deleteUnit(unit.id)}>Delete</button>
+                          <button type="button" className="rounded-full border border-official-teal px-3 py-1 text-sm text-official-teal" onClick={() => setEditingUnit(unit)}>Edit</button>
+                          <button type="button" className="rounded-full border border-estate-red px-3 py-1 text-sm text-estate-red" onClick={() => deleteUnit(unit.id)}>Delete</button>
                         </td>
                       </tr>
                     ))}
@@ -345,7 +345,7 @@ export default function UnitManager({ units, setUnits, onDeleteUnit }) {
               <h3 className="text-xl font-semibold">{editingUnit?.id ? 'Edit unit' : 'Add unit'}</h3>
               <p className="text-sm text-anchorGray">Unit details and pricing.</p>
             </div>
-            <button className="text-sm text-anchorGray hover:text-teal" onClick={() => setEditingUnit(null)}>Close</button>
+            <button className="text-sm text-anchor-gray hover:text-official-teal" onClick={() => setEditingUnit(null)}>Close</button>
           </div>
           <div className="grid gap-4">
             <input type="text" required value={editingUnit?.name || ''} onChange={(e) => setEditingUnit((u) => ({ ...u, name: e.target.value }))} placeholder="Unit number / name" className="w-full border rounded-lg px-4 py-3" />
@@ -376,7 +376,7 @@ export default function UnitManager({ units, setUnits, onDeleteUnit }) {
             </div>
             <div className="flex justify-end gap-3">
               <button type="button" className="rounded-full border px-4 py-2 text-sm text-anchorGray" onClick={() => setEditingUnit(null)}>Cancel</button>
-              <button type="button" onClick={saveUnit} className="rounded-full bg-teal px-4 py-2 text-sm text-white">Save unit</button>
+              <button type="button" onClick={saveUnit} className="rounded-full bg-official-teal px-4 py-2 text-sm text-white">Save unit</button>
             </div>
           </div>
         </div>

@@ -15,17 +15,17 @@ export default function PropertyCard({ property }) {
       <img src={photos?.[0] || property.image_url || '/placeholder.svg'} alt="property" className="w-full h-48 object-cover" />
       <div className="p-4">
         <div className="flex items-center justify-between gap-2">
-          <h3 className="font-semibold text-midnight">{property.title || 'Property'}</h3>
-          <span className={`text-xs uppercase px-2 py-1 rounded ${available === false ? 'bg-estateRed/15 text-estateRed' : property.sponsored ? 'bg-mutedTeal/15 text-mutedTeal' : 'bg-mintHint text-teal'}`}>
+          <h3 className="font-semibold text-anchor-gray">{property.title || 'Property'}</h3>
+          <span className={`text-xs uppercase px-2 py-1 rounded ${available === false ? 'bg-estate-red/15 text-estate-red' : property.sponsored ? 'bg-muted-teal/15 text-muted-teal' : 'bg-mint-hint text-official-teal'}`}>
             {available === false ? 'Unavailable' : property.sponsored ? 'Sponsored' : 'Available'}
           </span>
         </div>
-        {address && <p className="text-sm text-anchorGray mt-1">{address}</p>}
-        <p className="text-sm text-anchorGray mt-2">{bedrooms} bd • KES {price}</p>
-        {property.distance && <p className="text-sm text-anchorGray">{property.distance.toFixed(1)}m away</p>}
-        {driveMinutes != null && <p className="text-sm text-anchorGray">~{driveMinutes} min drive</p>}
+        {address && <p className="text-sm text-anchor-gray mt-1">{address}</p>}
+        <p className="text-sm text-anchor-gray mt-2">{bedrooms} bd • KES {price}</p>
+        {property.distance && <p className="text-sm text-anchor-gray">{property.distance.toFixed(1)}m away</p>}
+        {driveMinutes != null && <p className="text-sm text-anchor-gray">~{driveMinutes} min drive</p>}
         <div className="mt-3">
-          <Link href={`/properties/${property.id}`} className="text-sm text-teal font-medium">View details</Link>
+          <Link href={`/properties/${property.id}`} className="text-sm text-official-teal font-medium">View details</Link>
         </div>
       </div>
     </div>

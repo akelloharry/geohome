@@ -207,7 +207,7 @@ export default function PropertyDetail({ params }) {
                         <div className="font-semibold">{unit.name || 'Unit'}</div>
                         <div className="text-sm text-anchorGray">{unit.property_type || 'Unit'} • {unit.bedrooms} bd • {unit.bathrooms} ba</div>
                       </div>
-                      <span className={`rounded-full px-2 py-1 text-xs ${unit.is_vacant ? 'bg-mintHint text-teal' : 'bg-estateRed/10 text-estateRed'}`}>
+                      <span className={`rounded-full px-2 py-1 text-xs ${unit.is_vacant ? 'bg-mint-hint text-official-teal' : 'bg-estate-red/10 text-estate-red'}`}>
                         {unit.is_vacant ? 'Vacant' : 'Booked'}
                       </span>
                     </div>
@@ -217,7 +217,7 @@ export default function PropertyDetail({ params }) {
                     </div>
                     {isTenant ? (
                       <div className="mt-3 flex flex-wrap gap-2">
-                        <button className="rounded-full bg-teal px-4 py-2 text-sm text-white" onClick={() => startChat(unit.id)}>
+                        <button className="rounded-full bg-official-teal px-4 py-2 text-sm text-white" onClick={() => startChat(unit.id)}>
                           Inquire about this unit
                         </button>
                       </div>
@@ -227,7 +227,7 @@ export default function PropertyDetail({ params }) {
                           'Only tenant accounts may inquire about this unit.'
                         ) : (
                           <>
-                            <Link href="/login" className="text-teal underline">Login</Link> to inquire about this unit.
+                            <Link href="/login" className="text-official-teal underline">Login</Link> to inquire about this unit.
                           </>
                         )}
                       </div>
@@ -262,14 +262,14 @@ export default function PropertyDetail({ params }) {
           <div className="rounded-3xl border bg-white p-6 space-y-3">
             <h2 className="text-xl font-semibold">Tenant actions</h2>
             {!activePass ? (
-              <button className="w-full rounded-full bg-teal px-4 py-3 text-white" onClick={buySearchPass}>Buy Search Pass (KES 200)</button>
+              <button className="w-full rounded-full bg-official-teal px-4 py-3 text-white" onClick={buySearchPass}>Buy Search Pass (KES 200)</button>
             ) : (
-              <div className="rounded-3xl bg-mintHint p-4 text-sm text-teal">You have an active search pass.</div>
+              <div className="rounded-3xl bg-mint-hint p-4 text-sm text-official-teal">You have an active search pass.</div>
             )}
-            <button className="w-full rounded-full border border-teal px-4 py-3 text-teal" onClick={requestViewing} disabled={!activePass || requesting}>
+            <button className="w-full rounded-full border border-official-teal px-4 py-3 text-official-teal" onClick={requestViewing} disabled={!activePass || requesting}>
               {requesting ? 'Requesting…' : 'Request viewing'}
             </button>
-            <button className="w-full rounded-full bg-white border border-teal px-4 py-3 text-teal" onClick={startChat}>
+            <button className="w-full rounded-full bg-white border border-official-teal px-4 py-3 text-official-teal" onClick={startChat}>
               {thread ? 'Open conversation' : 'Message owner'}
             </button>
             {!activePass && <p className="text-sm text-anchorGray">A valid pass is required before requesting a viewing.</p>}

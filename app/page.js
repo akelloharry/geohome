@@ -107,29 +107,29 @@ export default function HomePage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-midnight-soil">
-        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-lake-blue"></div>
+      <div className="flex items-center justify-center h-screen bg-deep-maritime">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-official-teal"></div>
       </div>
     )
   }
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-midnight-soil text-white">
+    <div className="relative min-h-screen w-full overflow-hidden bg-deep-maritime text-white">
       <Map center={kisumuCenter} properties={properties} className="absolute inset-0 h-full w-full" />
 
       <div className={overlayStyles} />
 
-      <div className="absolute inset-0 z-10 mx-auto flex min-h-screen w-full max-w-7xl flex-col justify-between px-6 py-6 lg:px-10">
+      <div className="absolute inset-0 z-10 mx-auto flex min-h-screen w-full max-w-7xl flex-col justify-between px-4 py-4 sm:px-6 sm:py-6 lg:px-10">
         <header className="mx-auto flex w-full max-w-6xl flex-col gap-6 pt-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <div className="text-sm font-semibold uppercase tracking-[0.3em] text-cloud-fluff/75">GeoHome Kenya</div>
+            <div className="text-sm font-semibold uppercase tracking-[0.3em] text-cloud-white/80">GeoHome Kenya</div>
             <div className="mt-3 flex flex-wrap items-center gap-2 text-3xl font-heading font-black sm:text-4xl">
               <span>Geo</span>
-              <span className="text-sunset-orange">Home</span>
+              <span className="text-official-teal">Home</span>
               <span>Kenya</span>
             </div>
           </div>
-          <nav className="flex flex-wrap items-center gap-4 text-sm text-cloud-fluff/85">
+          <nav className="flex flex-wrap items-center gap-4 text-sm text-cloud-white/85">
             <Link href="#about" className="hover:text-white">About</Link>
             <Link href="#contact" className="hover:text-white">Contact</Link>
             <Link href="#privacy" className="hover:text-white">Privacy</Link>
@@ -138,46 +138,46 @@ export default function HomePage() {
 
         <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 py-10 text-left sm:py-16">
           <div className="max-w-3xl">
-            <span className="inline-flex rounded-full bg-sunset-orange/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.32em] text-sunset-orange backdrop-blur-xl">
+            <span className="inline-flex rounded-full bg-official-teal/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.32em] text-official-teal backdrop-blur-xl">
               GeoHome Verified rentals in Kisumu
             </span>
-            <h1 className="mt-6 text-5xl font-heading font-black leading-tight tracking-tight sm:text-6xl">
+            <h1 className="mt-6 text-4xl font-heading font-black leading-tight tracking-tight sm:text-5xl md:text-6xl">
               Kisumu rentals, mapped for confident tenants.
             </h1>
-            <p className="mt-5 text-lg text-cloud-fluff/85 sm:text-xl">
+            <p className="mt-5 max-w-2xl text-base text-cloud-white/85 sm:text-lg">
               Explore verified and available homes in Kisumu with live map pins, city-wide rental stats, and an elegant full-screen experience built for tenants.
             </p>
           </div>
 
           <div className="grid gap-6 xl:grid-cols-[1.35fr_0.75fr]">
-            <div className="rounded-[32px] border border-cloud-fluff/10 bg-cloud-fluff/10 p-8 shadow-2xl shadow-slate-950/30 backdrop-blur-xl">
+            <div className="rounded-[32px] border border-cloud-white/15 bg-cloud-white/10 p-6 shadow-2xl shadow-slate-950/30 backdrop-blur-xl sm:p-8">
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className="rounded-3xl border border-white/10 bg-white/10 p-6">
-                  <div className="text-sm font-semibold uppercase tracking-[0.24em] text-cloud-fluff/75">County coverage</div>
-                  <div className="mt-4 text-4xl font-heading font-black text-cloud-fluff">{loadingStats ? '...' : stats.counties}</div>
-                  <p className="mt-2 text-sm text-cloud-fluff/70">Verified counties served</p>
+                <div className="rounded-3xl border border-pale-steel/60 bg-cloud-white/80 p-6">
+                  <div className="text-sm font-semibold uppercase tracking-[0.24em] text-anchor-gray">County coverage</div>
+                  <div className="mt-4 text-4xl font-heading font-black text-cloud-white">{loadingStats ? '...' : stats.counties}</div>
+                  <p className="mt-2 text-sm text-anchor-gray">Verified counties served</p>
                 </div>
-                <div className="rounded-3xl border border-white/10 bg-white/10 p-6">
-                  <div className="text-sm font-semibold uppercase tracking-[0.24em] text-cloud-fluff/75">Active listings</div>
-                  <div className="mt-4 text-4xl font-heading font-black text-lake-blue">{loadingStats ? '...' : stats.activeListings}</div>
-                  <p className="mt-2 text-sm text-cloud-fluff/70">Verified homes currently available</p>
+                <div className="rounded-3xl border border-pale-steel/60 bg-cloud-white/80 p-6">
+                  <div className="text-sm font-semibold uppercase tracking-[0.24em] text-anchor-gray">Active listings</div>
+                  <div className="mt-4 text-4xl font-heading font-black text-official-teal">{loadingStats ? '...' : stats.activeListings}</div>
+                  <p className="mt-2 text-sm text-anchor-gray">Verified homes currently available</p>
                 </div>
               </div>
 
-              <div className="mt-8 rounded-3xl border border-white/10 bg-white/10 p-6">
-                <div className="text-sm font-semibold uppercase tracking-[0.24em] text-cloud-fluff/75">Latest properties</div>
-                <div className="mt-5 space-y-4 text-sm text-cloud-fluff/80">
+              <div className="mt-8 rounded-3xl border border-pale-steel/60 bg-cloud-white/80 p-6">
+                <div className="text-sm font-semibold uppercase tracking-[0.24em] text-anchor-gray">Latest properties</div>
+                <div className="mt-5 space-y-4 text-sm text-anchor-gray">
                   {loadingProperties ? (
                     <div>Loading active listings…</div>
                   ) : properties.length === 0 ? (
                     <div>No active properties found in Kisumu.</div>
                   ) : (
                     properties.slice(0, 3).map((property) => (
-                      <div key={property.id} className="rounded-3xl border border-white/10 bg-white/5 p-4">
-                        <div className="font-semibold text-cloud-fluff">{property.title || 'Verified rental'}</div>
-                        <div className="mt-1 text-sm text-cloud-fluff/70">{property.address || 'Kisumu, Kenya'}</div>
-                        <div className="mt-2 text-sm text-cloud-fluff/70">{property.property_type || 'Rental'} • KES {property.price ?? '—'}/month</div>
-                        <div className="mt-2 flex flex-wrap gap-2 text-xs uppercase tracking-[0.2em] text-cloud-fluff/70">
+                      <div key={property.id} className="rounded-3xl border border-pale-steel/60 bg-cloud-white/90 p-4">
+                        <div className="font-semibold text-deep-maritime">{property.title || 'Verified rental'}</div>
+                        <div className="mt-1 text-sm text-anchor-gray">{property.address || 'Kisumu, Kenya'}</div>
+                        <div className="mt-2 text-sm text-anchor-gray">{property.property_type || 'Rental'} • KES {property.price ?? '—'}/month</div>
+                        <div className="mt-2 flex flex-wrap gap-2 text-xs uppercase tracking-[0.2em] text-anchor-gray">
                           <span>{property.bedrooms ?? '—'} bd</span>
                           <span>{property.bathrooms ?? '—'} ba</span>
                         </div>
@@ -189,23 +189,23 @@ export default function HomePage() {
             </div>
 
             <div className="space-y-6">
-              <div className="rounded-[32px] border border-cloud-fluff/10 bg-white/10 p-8 shadow-2xl shadow-slate-950/30 backdrop-blur-xl">
-                <div className="text-sm font-semibold uppercase tracking-[0.24em] text-cloud-fluff/75">Tenant-first tools</div>
-                <h2 className="mt-4 text-3xl font-heading font-black text-cloud-fluff">Full-screen map, instant listings, trusted homes.</h2>
-                <p className="mt-4 text-sm leading-7 text-cloud-fluff/75">
+              <div className="rounded-[32px] border border-cloud-white/15 bg-cloud-white/10 p-6 shadow-2xl shadow-slate-950/30 backdrop-blur-xl sm:p-8">
+                <div className="text-sm font-semibold uppercase tracking-[0.24em] text-cloud-white/75">Tenant-first tools</div>
+                <h2 className="mt-4 text-3xl font-heading font-black text-cloud-white">Full-screen map, instant listings, trusted homes.</h2>
+                <p className="mt-4 text-sm leading-7 text-cloud-white/75">
                   Browse Kisumu rentals with confidence. Our map highlights available verified homes and makes it easy to explore the best listings in the city.
                 </p>
                 <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                  <span className="inline-flex items-center gap-2 rounded-full bg-acacia-green/10 px-4 py-2 text-sm font-semibold text-acacia-green">Verified rent</span>
-                  <span className="inline-flex items-center gap-2 rounded-full bg-geohome-gold/10 px-4 py-2 text-sm font-semibold text-geohome-gold">City-focused search</span>
-                  <span className="inline-flex items-center gap-2 rounded-full bg-sunset-orange/10 px-4 py-2 text-sm font-semibold text-sunset-orange">Tenant-first design</span>
+                  <span className="inline-flex items-center gap-2 rounded-full bg-mint-hint/70 px-4 py-2 text-sm font-semibold text-trust-teal">Verified rent</span>
+                  <span className="inline-flex items-center gap-2 rounded-full bg-geohome-gold/15 px-4 py-2 text-sm font-semibold text-geohome-gold">City-focused search</span>
+                  <span className="inline-flex items-center gap-2 rounded-full bg-muted-teal/15 px-4 py-2 text-sm font-semibold text-muted-teal">Tenant-first design</span>
                 </div>
               </div>
 
-              <div className="rounded-[32px] border border-cloud-fluff/10 bg-white/10 p-8 shadow-2xl shadow-slate-950/30 backdrop-blur-xl">
-                <div className="text-sm font-semibold uppercase tracking-[0.24em] text-cloud-fluff/75">Ready to explore</div>
-                <p className="mt-4 text-sm text-cloud-fluff/75">Tap the map pins or follow the button below to see every Kisumu listing in a full-screen discovery experience.</p>
-                <Link href="/map" className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-lake-blue px-5 py-4 text-base font-semibold text-white transition hover:bg-[#1556b9]">
+              <div className="rounded-[32px] border border-cloud-white/15 bg-cloud-white/10 p-6 shadow-2xl shadow-slate-950/30 backdrop-blur-xl sm:p-8">
+                <div className="text-sm font-semibold uppercase tracking-[0.24em] text-cloud-white/75">Ready to explore</div>
+                <p className="mt-4 text-sm text-cloud-white/75">Tap the map pins or follow the button below to see every Kisumu listing in a full-screen discovery experience.</p>
+                <Link href="/map" className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-official-teal px-5 py-4 text-base font-semibold text-white transition hover:bg-muted-teal">
                   View more listings
                   <span className="ml-2">→</span>
                 </Link>
@@ -214,7 +214,7 @@ export default function HomePage() {
           </div>
         </main>
 
-        <footer className="mx-auto flex w-full max-w-6xl flex-col gap-4 border-t border-cloud-fluff/10 pt-6 text-sm text-cloud-fluff/80 sm:flex-row sm:items-center sm:justify-between">
+        <footer className="mx-auto flex w-full max-w-6xl flex-col gap-4 border-t border-cloud-white/15 pt-6 text-sm text-cloud-white/80 sm:flex-row sm:items-center sm:justify-between">
           <div>© 2026 GeoHome Kenya</div>
           <div className="flex flex-wrap gap-4">
             <Link href="#about" className="hover:text-white">About</Link>

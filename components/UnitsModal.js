@@ -67,14 +67,14 @@ export default function UnitsModal({ propertyId, open, onClose }) {
         ) : (
           <div className="space-y-3">
             {units.map((unit) => (
-              <div key={unit.id} className="rounded-3xl border p-4 bg-cloud">
+              <div key={unit.id} className="rounded-3xl border p-4 bg-cloud-white">
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="font-semibold">{unit.name || 'Unit'}</div>
-                    <div className="text-sm text-anchorGray">{unit.property_type} • {unit.bedrooms} bd • {unit.bathrooms} ba</div>
+                    <div className="text-sm text-anchor-gray">{unit.property_type} • {unit.bedrooms} bd • {unit.bathrooms} ba</div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className={`rounded-full px-2 py-1 text-xs ${unit.is_vacant ? 'bg-mintHint text-teal' : 'bg-estateRed/10 text-estateRed'}`}>{unit.is_vacant ? 'Vacant' : 'Booked'}</span>
+                    <span className={`rounded-full px-2 py-1 text-xs ${unit.is_vacant ? 'bg-mint-hint text-official-teal' : 'bg-estate-red/10 text-estate-red'}`}>{unit.is_vacant ? 'Vacant' : 'Booked'}</span>
                     <button className="rounded-full border px-3 py-1 text-sm" onClick={() => toggleVacancy(unit)}>{unit.is_vacant ? 'Mark booked' : 'Mark vacant'}</button>
                   </div>
                 </div>

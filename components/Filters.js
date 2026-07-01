@@ -25,7 +25,7 @@ export default function Filters({ onChange }) {
           <option value="bnb">B&B</option>
         </select>
       </div>
-      <button onClick={apply} className="bg-teal text-white px-3 py-2 rounded">Apply filters</button>
+      <button onClick={apply} className="bg-official-teal text-white px-3 py-2 rounded">Apply filters</button>
     </div>
   )
 }

@@ -13,7 +13,7 @@ export function LineChart({ data }) {
               return (
                 <div
                   key={index}
-                  className="absolute bottom-0 w-1.5 bg-teal"
+                  className="absolute bottom-0 w-1.5 bg-official-teal"
                   style={{ left: `${index * (100 / data.length)}%`, height: `${height}%`, width: `${100 / data.length - 1}%` }}
                 />
               )
@@ -40,7 +40,7 @@ export function BarChart({ data }) {
                 <span>{item.value}</span>
               </div>
               <div className="h-2 rounded-full bg-slate-100">
-                <div className="h-full rounded-full bg-teal" style={{ width: `${width}%` }} />
+                <div className="h-full rounded-full bg-official-teal" style={{ width: `${width}%` }} />
               </div>
             </div>
           )

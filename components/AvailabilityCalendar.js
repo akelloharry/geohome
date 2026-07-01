@@ -65,7 +65,7 @@ export default function AvailabilityCalendar({ bookedDates = [], onToggleDate })
               type="button"
               disabled={!date}
               onClick={() => date && onToggleDate && onToggleDate(date.toISOString())}
-              className={`h-12 rounded-2xl border ${date ? 'bg-white' : 'bg-slate-100'} ${isBooked ? 'border-estateRed bg-estateRed/10 text-estateRed' : 'border-slate-200 text-slate-700'} ${date ? 'hover:border-teal hover:text-teal' : ''}`}
+              className={`h-12 rounded-2xl border ${date ? 'bg-white' : 'bg-slate-100'} ${isBooked ? 'border-estate-red bg-estate-red/10 text-estate-red' : 'border-slate-200 text-slate-700'} ${date ? 'hover:border-official-teal hover:text-official-teal' : ''}`}
             >
               {label}
             </button>

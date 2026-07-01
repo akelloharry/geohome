@@ -64,17 +64,17 @@ export default function LoginPage() {
           onChange={(e) => setPassword(e.target.value)}
           disabled={loading}
         />
-        {error && <div className="text-estateRed text-sm">{error}</div>}
+        {error && <div className="text-estate-red text-sm">{error}</div>}
         <button
           type="submit"
           disabled={loading}
-          className="bg-teal text-white px-4 py-2 rounded disabled:opacity-50 w-full"
+          className="bg-official-teal text-white px-4 py-2 rounded disabled:opacity-50 w-full"
         >
           {loading ? 'Logging in...' : 'Login'}
         </button>
       </form>
-      <p className="text-sm text-anchorGray mt-4">
-        Don't have an account? <a href="/signup" className="text-teal">Sign up</a>
+      <p className="text-sm text-anchor-gray mt-4">
+        Don't have an account? <a href="/signup" className="text-official-teal">Sign up</a>
       </p>
     </div>
   )

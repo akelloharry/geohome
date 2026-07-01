@@ -82,9 +82,9 @@ export default function ChatThreadPage({ params }) {
               {messages.map((message) => {
                 const isMine = message.sender_id === user?.id
                 return (
-                  <div key={message.id} className={`rounded-3xl p-4 ${isMine ? 'bg-teal/10 self-end' : 'bg-slate-100'} max-w-3xl`}>
+                  <div key={message.id} className={`rounded-3xl p-4 ${isMine ? 'bg-official-teal/10 self-end' : 'bg-slate-100'} max-w-3xl`}>
                     <div className="text-sm text-slate-700">{message.content}</div>
-                    <div className="mt-2 text-xs text-anchorGray">{new Date(message.created_at).toLocaleString()}</div>
+                    <div className="mt-2 text-xs text-anchor-gray">{new Date(message.created_at).toLocaleString()}</div>
                   </div>
                 )
               })}
@@ -94,7 +94,7 @@ export default function ChatThreadPage({ params }) {
           <div className="rounded-3xl border bg-white p-6">
             <textarea value={content} onChange={(e) => setContent(e.target.value)} rows={4} className="w-full border rounded-3xl px-4 py-3" placeholder="Write a message..." />
             <div className="flex justify-end mt-3">
-              <button onClick={handleSend} disabled={sending || !content.trim()} className="rounded-full bg-teal px-5 py-3 text-white disabled:opacity-60">{sending ? 'Sending…' : 'Send'}</button>
+              <button onClick={handleSend} disabled={sending || !content.trim()} className="rounded-full bg-official-teal px-5 py-3 text-white disabled:opacity-60">{sending ? 'Sending…' : 'Send'}</button>
             </div>
           </div>
         </div>

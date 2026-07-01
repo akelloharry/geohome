@@ -149,8 +149,8 @@ export default function NearbySearch() {
       <div className="space-y-4">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <h2 className="text-2xl font-semibold text-primary">Nearby verified rentals</h2>
-            <p className="mt-2 text-sm text-anchorGray">Search by radius or by area selection. Use driving time or straight-line distance.</p>
+            <h2 className="text-2xl font-semibold text-deep-maritime">Nearby verified rentals</h2>
+            <p className="mt-2 text-sm text-anchor-gray">Search by radius or by area selection. Use driving time or straight-line distance.</p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <label className="text-sm text-anchorGray">Search mode</label>
@@ -186,9 +186,9 @@ export default function NearbySearch() {
                 value={searchText}
                 placeholder="Search neighbourhood, place, or landmark"
                 onChange={(e) => setSearchText(e.target.value)}
-                className="w-full rounded-full border border-paleSteel px-5 py-3 text-sm text-midnight focus:border-teal focus:outline-none focus:ring-2 focus:ring-teal/20"
+                className="w-full rounded-full border border-pale-steel px-5 py-3 text-sm text-anchor-gray focus:border-official-teal focus:outline-none focus:ring-2 focus:ring-official-teal/20"
               />
-              <button type="submit" className="rounded-full bg-teal px-6 py-3 text-sm font-semibold text-white hover:bg-primary">Search</button>
+              <button type="submit" className="rounded-full bg-official-teal px-6 py-3 text-sm font-semibold text-white hover:bg-muted-teal">Search</button>
             </div>
             {searchResults.length > 0 && (
               <div className="grid gap-2 rounded-3xl border bg-slate-50 p-3">
@@ -199,7 +199,7 @@ export default function NearbySearch() {
                     className="w-full rounded-2xl px-4 py-3 text-left text-sm text-anchorGray hover:bg-slate-100"
                     onClick={() => handleResultSelect(result)}
                   >
-                    <div className="font-semibold text-midnight">{formatResultLabel(result)}</div>
+                    <div className="font-semibold text-deep-maritime">{formatResultLabel(result)}</div>
                     <div className="text-xs text-slate-500">{result.place_type?.join(', ')}</div>
                   </button>
                 ))}
@@ -218,7 +218,7 @@ export default function NearbySearch() {
               <button
                 type="button"
                 onClick={loadProperties}
-                className="mt-2 w-full rounded-full bg-teal px-5 py-3 text-sm font-semibold text-white"
+                className="mt-2 w-full rounded-full bg-official-teal px-5 py-3 text-sm font-semibold text-white"
               >
                 Refresh search
               </button>
@@ -246,9 +246,9 @@ export default function NearbySearch() {
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1.5fr_0.8fr]">
         <div className="space-y-4">
-          {loading && <div className="rounded-lg bg-cloud p-4 text-sm text-anchorGray">Loading listings…</div>}
-          {error && <div className="rounded-lg bg-estateRed/10 border border-estateRed p-4 text-sm text-estateRed">{error}</div>}
-          {!loading && !error && properties.length === 0 && <div className="rounded-lg bg-cloud p-4 text-sm text-anchorGray">No nearby rentals found for this search.</div>}
+          {loading && <div className="rounded-lg bg-cloud-white p-4 text-sm text-anchor-gray">Loading listings…</div>}
+          {error && <div className="rounded-lg bg-estate-red/10 border border-estate-red p-4 text-sm text-estate-red">{error}</div>}
+          {!loading && !error && properties.length === 0 && <div className="rounded-lg bg-cloud-white p-4 text-sm text-anchor-gray">No nearby rentals found for this search.</div>}
           {!loading && properties.map((property) => (
             <PropertyCard key={property.id} property={{ ...property, driveMinutes: driveTimes[property.id] }} />
           ))}

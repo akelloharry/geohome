@@ -474,9 +474,9 @@ export default function PropertyForm({ propertyId = null, initialProperty = null
 
           <section className="rounded-3xl border bg-white p-6">
             <h2 className="text-xl font-semibold">Save</h2>
-            {error && <p className="rounded-3xl bg-estateRed/10 p-3 text-sm text-estateRed">{error}</p>}
+            {error && <p className="rounded-3xl bg-estate-red/10 p-3 text-sm text-estate-red">{error}</p>}
             <button
-              className="w-full rounded-full bg-teal px-5 py-3 text-sm font-semibold text-white disabled:opacity-60"
+              className="w-full rounded-full bg-official-teal px-5 py-3 text-sm font-semibold text-white disabled:opacity-60"
               onClick={handleSubmit}
               disabled={saving || !canSubmit}
             >

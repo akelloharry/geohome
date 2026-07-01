@@ -53,9 +53,9 @@ export default function ChatPage() {
                     <div className="text-sm text-anchorGray">Unit {thread.unit_id || 'Default'} · Started {new Date(thread.created_at).toLocaleDateString()}</div>
                   </div>
                   <div className="flex items-center gap-2">
-              <span className="text-xs uppercase tracking-[0.16em] text-teal">Open thread</span>
+              <span className="text-xs uppercase tracking-[0.16em] text-official-teal">Open thread</span>
               {thread.chat_messages?.some((msg) => !msg.read_at && msg.sender_id !== user.id) && (
-                <span className="rounded-full bg-estateRed/10 px-2 py-1 text-[10px] uppercase tracking-[0.16em] text-estateRed">New</span>
+                <span className="rounded-full bg-estate-red/10 px-2 py-1 text-[10px] uppercase tracking-[0.16em] text-estate-red">New</span>
               )}
             </div>
                 </div>
