@@ -1,31 +1,15 @@
 "use client"
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '../context/AuthContext'
 import NearbySearch from '../components/NearbySearch'
+import { supabase } from '../lib/supabaseClient'
 
-const properties = [
-  {
-    title: 'KES 25,000 / month',
-    desc: '2 bedroom, 1 bath • Milimani',
-    meta: '1.2 km from Kisumu CBD',
-    badge: 'Verified'
-  },
-  {
-    title: 'KES 12,000 / semester',
-    desc: 'Single room hostel • Near Maseno Uni',
-    meta: '0.8 km from main gate',
-    badge: 'Student hostel'
-  },
-  {
-    title: 'KES 3,500 / night',
-    desc: 'BnB • Lake view, fully furnished',
-    meta: '⭐ 4.9 (32 reviews)',
-    badge: 'Short stay'
-  }
-]
+// Dynamic properties loaded from Supabase RPC
+const defaultCenter = [34.7617, -0.0917]
+
 
 const features = [
   {
@@ -66,6 +50,33 @@ const steps = [
 export default function HomePage() {
   const { user, profile, loading } = useAuth()
   const router = useRouter()
+
+  const [properties, setProperties] = useState([])
+  const [loadingProperties, setLoadingProperties] = useState(false)
+
+  useEffect(() => {
+    // Load a default set of nearby verified properties for the homepage
+    const fetchProperties = async () => {
+      setLoadingProperties(true)
+      try {
+        const payload = { lat_param: defaultCenter[1], lng_param: defaultCenter[0], radius: 3000 }
+        const { data, error } = await supabase.rpc('nearby_properties', payload)
+        if (error) {
+          console.error('nearby_properties RPC error:', error)
+          setProperties([])
+        } else {
+          setProperties((data || []).filter((p) => p.verification_status === 'verified' && (p.available ?? true)))
+        }
+      } catch (err) {
+        console.error(err)
+        setProperties([])
+      } finally {
+        setLoadingProperties(false)
+      }
+    }
+
+    fetchProperties()
+  }, [])
 
   // Redirect non-tenant users to their role-specific dashboards
   useEffect(() => {

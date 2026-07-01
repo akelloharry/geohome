@@ -63,7 +63,13 @@ function AgentPageInner() {
 
     const { data: inserted, error } = await supabase.from('agent_submissions').insert(payload).select('id').single()
     if (error) {
-      alert('Submit failed: ' + error.message)
+      // Detect common Supabase PostgREST schema cache errors and provide actionable guidance
+      const msg = error.message || String(error)
+      if (msg.includes('schema cache') || /Could not find the '.+' column of '.+' in the schema cache/i.test(msg) || msg.includes('could not find')) {
+        alert('Submit failed due to Supabase schema cache mismatch. Run this SQL in your Supabase SQL editor to refresh the PostgREST schema cache:\n\nNOTIFY pgrst, \'reload schema\';\n\nIf the missing column still appears, ensure the column exists (for example run: ALTER TABLE public.agent_submissions ADD COLUMN IF NOT EXISTS deposit INTEGER;), then run the NOTIFY command again. After reload, retry submission.')
+      } else {
+        alert('Submit failed: ' + msg)
+      }
       setSaving(false)
       return
     }

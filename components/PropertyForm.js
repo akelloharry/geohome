@@ -83,7 +83,7 @@ export default function PropertyForm({ propertyId = null, initialProperty = null
   const allWaterOptions = useMemo(() => waterOptions, [])
   const allElectricityOptions = useMemo(() => electricityOptions, [])
 
-  const canSubmit = form.title && form.address && form.water_supply.length > 0 && form.electricity.length > 0 && units.length > 0
+  const canSubmit = form.title && form.address && units.length > 0
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -476,6 +476,9 @@ export default function PropertyForm({ propertyId = null, initialProperty = null
             >
               {saving ? 'Saving...' : propertyId ? 'Save property' : 'Create property'}
             </button>
+            {(!form.water_supply.length || !form.electricity.length) && (
+              <p className="mt-3 text-sm text-anchorGray">Water and electricity are optional here; you can save the property now and update those details later.</p>
+            )}
             <button
               type="button"
               className="mt-3 w-full rounded-full border border-slate-200 bg-white px-5 py-3 text-sm text-anchorGray"

@@ -30,7 +30,18 @@ export default function Map({ center = [34.7617, -0.0917], properties = [], radi
   useEffect(() => {
     const map = mapRef.current
     if (!map) return
-    map.setCenter(center)
+    // Wait for style to load before calling map methods that access style internals
+    try {
+      if (typeof map.isStyleLoaded === 'function' && !map.isStyleLoaded()) {
+        map.once('load', () => {
+          try { map.setCenter(center) } catch (e) { console.warn('map.setCenter failed after load', e) }
+        })
+      } else {
+        try { map.setCenter(center) } catch (e) { console.warn('map.setCenter failed', e) }
+      }
+    } catch (e) {
+      console.warn('Map defensive setCenter failed', e)
+    }
 
     // clear existing markers
     markersRef.current.forEach(m => m.remove())

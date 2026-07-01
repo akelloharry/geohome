@@ -15,8 +15,17 @@ export function AuthProvider({ children }) {
 
     const fetchProfile = async (id) => {
       if (!id) return null
-      const { data: p, error } = await supabase.from('profiles').select('*').eq('id', id).maybeSingle()
-      return error ? null : p
+      try {
+        const { data: p, error } = await supabase.from('profiles').select('*').eq('id', id).maybeSingle()
+        if (error) {
+          console.warn('fetchProfile error', error)
+          return null
+        }
+        return p
+      } catch (e) {
+        console.warn('Exception fetching profile', e)
+        return null
+      }
     }
 
     const handleSession = async (session) => {

@@ -16,12 +16,18 @@ export default function UnitsModal({ propertyId, open, onClose }) {
 
   async function fetchUnits() {
     setLoading(true)
-    const { data, error } = await supabase.from('units').select('*').eq('property_id', propertyId).order('name', { ascending: true })
-    if (error) {
-      console.error(error)
+    try {
+      const { data, error } = await supabase.from('units').select('*').eq('property_id', propertyId)
+      if (error) {
+        console.error('fetchUnits error', error)
+        setUnits([])
+      } else {
+        const list = (data || []).slice().sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+        setUnits(list)
+      }
+    } catch (e) {
+      console.error('fetchUnits exception', e)
       setUnits([])
-    } else {
-      setUnits(data || [])
     }
     setLoading(false)
   }

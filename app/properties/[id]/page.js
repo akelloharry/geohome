@@ -37,22 +37,52 @@ export default function PropertyDetail({ params }) {
   }, [property, units])
 
   async function fetchProperty() {
-    const { data } = await supabase.from('properties').select('*').eq('id', id).single()
-    setProperty(data)
-    if (data?.landlord_id) {
-      const { data: owner } = await supabase.from('profiles').select('*').eq('id', data.landlord_id).single()
-      setLandlord(owner)
+    try {
+      const { data, error } = await supabase.from('properties').select('*').eq('id', id).single()
+      if (error) {
+        console.error('Failed to load property', error)
+        return
+      }
+      setProperty(data)
+
+      if (data?.landlord_id) {
+        try {
+          const { data: owner, error: ownerError } = await supabase.from('profiles').select('*').eq('id', data.landlord_id).single()
+          if (ownerError) console.warn('Failed to load landlord profile', ownerError)
+          setLandlord(owner || null)
+        } catch (e) {
+          console.warn('Exception fetching landlord profile', e)
+          setLandlord(null)
+        }
+      }
+
+      try {
+        const { data: unitData, error: unitError } = await supabase.from('units').select('*').eq('property_id', id)
+        if (unitError) {
+          console.warn('Failed to load units', unitError)
+          setUnits([])
+        } else {
+          const list = (unitData || []).slice().sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+          setUnits(list)
+        }
+      } catch (e) {
+        console.warn('Exception fetching units', e)
+        setUnits([])
+      }
+    } catch (err) {
+      console.error('fetchProperty error', err)
     }
-    const { data: unitData } = await supabase.from('units').select('*').eq('property_id', id).order('name', { ascending: true })
-    setUnits(unitData || [])
   }
 
   useEffect(() => {
     // Record a view for analytics when the property is loaded
     if (!property) return
+    // Only record property views when a logged-in user exists (DB policy requires authenticated inserts)
+    if (!user) return
     ;(async () => {
       try {
-        await supabase.from('property_views').insert({ property_id: property.id, user_id: user?.id || null })
+        const { error } = await supabase.from('property_views').insert({ property_id: property.id, user_id: user.id })
+        if (error) console.warn('property_views insert error', error)
       } catch (err) {
         console.error('Failed to record property view', err)
       }
@@ -66,12 +96,20 @@ export default function PropertyDetail({ params }) {
       .eq('property_id', id)
       .order('created_at', { ascending: false })
 
+    // Sanitize filter values to avoid passing objects or DOM nodes to PostgREST
     const filter = role === 'landlord'
-      ? { landlord_id: user.id }
-      : { tenant_id: user.id }
+      ? { landlord_id: String(user.id) }
+      : { tenant_id: String(user.id) }
 
     baseQuery.match(filter)
-    if (unitId) baseQuery.eq('unit_id', unitId)
+
+    // Ensure unitId is a primitive (uuid string) before adding the filter
+    if (unitId != null) {
+      let unitVal = unitId
+      if (typeof unitVal === 'object') unitVal = unitVal.id ?? unitVal.toString()
+      unitVal = String(unitVal)
+      baseQuery.eq('unit_id', unitVal)
+    }
 
     const { data, error } = await baseQuery.limit(1)
     if (error) {
@@ -85,8 +123,15 @@ export default function PropertyDetail({ params }) {
   async function fetchSearchPass() {
     if (!user) return
     setLoadingPass(true)
-    const { data } = await supabase.from('search_passes').select('*').eq('user_id', user.id).gt('expires_at', new Date().toISOString()).order('expires_at', { ascending: false }).limit(1)
-    setHasPass((data || []).length > 0)
+    try {
+      const { data } = await supabase.from('search_passes').select('*').eq('user_id', user.id).order('expires_at', { ascending: false })
+      const now = new Date()
+      const has = (data || []).some((p) => new Date(p.expires_at) > now)
+      setHasPass(has)
+    } catch (e) {
+      console.warn('fetchSearchPass error', e)
+      setHasPass(false)
+    }
     setLoadingPass(false)
   }
 
@@ -124,23 +169,34 @@ export default function PropertyDetail({ params }) {
 
   const startChat = async (unitId = null) => {
     if (!user) return alert('Please login to message the landlord')
-    await fetchThread(unitId)
+    // sanitize unitId
+    let unitVal = null
+    if (unitId != null) {
+      unitVal = typeof unitId === 'object' ? (unitId.id ?? String(unitId)) : String(unitId)
+    }
+    await fetchThread(unitVal)
     if (thread && thread.unit_id === unitId) {
       router.push(`/chat/${thread.id}`)
       return
     }
-    const { data, error } = await supabase.from('chat_threads').insert({
-      property_id: property.id,
-      landlord_id: property.landlord_id,
-      tenant_id: user.id,
-      unit_id: unitId,
-      status: 'open'
-    }).select('id').single()
-    if (error || !data) {
-      console.error(error)
-      return alert('Could not open chat thread. Please try again.')
+    try {
+      const payload = {
+        property_id: String(property.id),
+        landlord_id: String(property.landlord_id),
+        tenant_id: String(user.id),
+        unit_id: unitVal,
+        status: 'open'
+      }
+      const { data, error } = await supabase.from('chat_threads').insert(payload).select('id').single()
+      if (error || !data) {
+        console.error('chat_threads insert error', error)
+        return alert('Could not open chat thread. Please try again.')
+      }
+      router.push(`/chat/${data.id}`)
+    } catch (e) {
+      console.error('startChat exception', e)
+      alert('Could not open chat thread. Please try again.')
     }
-    router.push(`/chat/${data.id}`)
   }
 
   if (!property) return <p>Loading...</p>

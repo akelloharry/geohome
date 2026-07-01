@@ -125,8 +125,10 @@ export default function UnitManager({ units, setUnits, onDeleteUnit }) {
     setEditingUnit({ ...blankUnit, id: `temp-${Date.now()}` })
   }
 
+  const canSaveUnit = editingUnit?.name && editingUnit?.rent_price
+
   const saveUnit = () => {
-    if (!editingUnit?.name || !editingUnit?.rent_price) return
+    if (!canSaveUnit) return
     setUnits((current) => {
       const next = current.filter((unit) => unit.id !== editingUnit.id)
       return [...next, { ...editingUnit, id: editingUnit.id || `temp-${Date.now()}` }]
@@ -376,8 +378,11 @@ export default function UnitManager({ units, setUnits, onDeleteUnit }) {
             </div>
             <div className="flex justify-end gap-3">
               <button type="button" className="rounded-full border px-4 py-2 text-sm text-anchorGray" onClick={() => setEditingUnit(null)}>Cancel</button>
-              <button type="button" onClick={saveUnit} className="rounded-full bg-teal px-4 py-2 text-sm text-white">Save unit</button>
+              <button type="button" onClick={saveUnit} disabled={!canSaveUnit} className="rounded-full bg-teal px-4 py-2 text-sm text-white disabled:opacity-50">Save unit</button>
             </div>
+            {!canSaveUnit && (
+              <p className="text-sm text-anchorGray">Unit name and rent price are required before saving.</p>
+            )}
           </div>
         </div>
       </Modal>
