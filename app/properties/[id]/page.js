@@ -223,7 +223,13 @@ export default function PropertyDetail({ params }) {
                       </div>
                     ) : (
                       <div className="mt-3 text-sm text-anchorGray">
-                        {user ? 'Only tenant accounts may inquire about this unit.' : <Link href="/login" className="text-teal underline">Login</Link> to inquire about this unit.}
+                        {user ? (
+                          'Only tenant accounts may inquire about this unit.'
+                        ) : (
+                          <>
+                            <Link href="/login" className="text-teal underline">Login</Link> to inquire about this unit.
+                          </>
+                        )}
                       </div>
                     )}
                   </div>
