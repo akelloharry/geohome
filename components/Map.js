@@ -6,7 +6,7 @@ import useMapStore from '../lib/useMapStore'
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || ''
 
-export default function Map({ center = [34.7617, -0.0917], properties = [], radius = 0, onMarkerClick, onMapClick, onPinMove, draggable = false, pinLocation, bbox = null }) {
+export default function Map({ center = [34.7617, -0.0917], properties = [], radius = 0, onMarkerClick, onMapClick, onPinMove, draggable = false, pinLocation, bbox = null, className = 'w-full h-96 rounded' }) {
   const mapContainer = useRef(null)
   const mapRef = useRef(null)
   const markersRef = useRef([])
@@ -63,13 +63,14 @@ export default function Map({ center = [34.7617, -0.0917], properties = [], radi
 
       const el = document.createElement('div')
       el.className = 'marker'
-      el.style.width = '22px'
-      el.style.height = '22px'
+      el.style.width = '28px'
+      el.style.height = '28px'
       el.style.borderRadius = '50%'
-      el.style.border = '2px solid white'
+      el.style.border = '3px solid white'
       el.style.cursor = 'pointer'
+      el.style.boxShadow = '0 8px 24px rgba(30,111,223,0.28)'
       const available = p.available ?? true
-      const color = p.sponsored ? 'var(--muted-teal, #5F8A7B)' : (available === false ? '#B26A5C' : 'var(--teal, #2C6E5C)')
+      const color = available === false ? '#EF4444' : '#1E6FDF'
       el.style.background = color
 
       const marker = new mapboxgl.Marker(el).setLngLat([lng, lat]).addTo(map)
@@ -78,9 +79,11 @@ export default function Map({ center = [34.7617, -0.0917], properties = [], radi
       const address = p.address || ''
       const price = p.price != null ? `KES ${p.price}` : ''
       const bedrooms = p.bedrooms != null ? `${p.bedrooms} bd` : ''
-      const details = [address, price, bedrooms].filter(Boolean).join(' • ')
+      const bathrooms = p.bathrooms != null ? `${p.bathrooms} ba` : ''
+      const propertyType = p.property_type || ''
+      const details = [propertyType, bedrooms, bathrooms, price].filter(Boolean).join(' • ')
       const propertyLink = p.id ? `/properties/${p.id}` : '#'
-      const popupHtml = `<div style="font-size:13px;line-height:1.4;max-width:240px;color:#1E293B;"><strong style="display:block;margin-bottom:4px;">${title}</strong>${details ? `<div style="margin-bottom:8px;">${details}</div>` : ''}<a href="${propertyLink}" style="color:#0f766e;text-decoration:none;font-weight:600;">View details</a></div>`
+      const popupHtml = `<div style="font-family:system-ui, sans-serif; font-size:13px;line-height:1.5;max-width:260px;color:#111827;"><strong style="display:block;margin-bottom:6px;color:#1E293B;">${title}</strong>${details ? `<div style="margin-bottom:8px;color:#374151;">${details}</div>` : ''}<a href="${propertyLink}" style="display:inline-block;padding:8px 10px;border-radius:9999px;background:#1E6FDF;color:#ffffff;text-decoration:none;font-weight:600;">View details</a></div>`
       const popup = new mapboxgl.Popup({ offset: 25, closeButton: false }).setHTML(popupHtml)
       marker.setPopup(popup)
 
@@ -220,8 +223,8 @@ export default function Map({ center = [34.7617, -0.0917], properties = [], radi
   }
 
   return (
-    <div className="relative">
-      <div ref={mapContainer} className="w-full h-96 rounded" />
+    <div className={`relative ${className}`}>
+      <div ref={mapContainer} className="w-full h-full" />
       <div style={{ position: 'absolute', right: 12, bottom: 12, zIndex: 1000 }}>
         <button onClick={handleLocateMe} className="bg-white px-3 py-2 rounded shadow">Locate me</button>
       </div>
