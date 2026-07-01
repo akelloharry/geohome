@@ -17,9 +17,8 @@ export default function Navbar() {
             Geo<span className="text-teal">Home</span>
           </Link>
           <div className="hidden md:flex items-center gap-8 text-sm text-midnight">
-            <a href="#tenants" className="hover:text-teal transition">Tenants</a>
-            <a href="#landlords" className="hover:text-teal transition">Landlords</a>
-            <a href="#how-it-works" className="hover:text-teal transition">How it works</a>
+            <a href="#" className="hover:text-teal transition">Map</a>
+            <a href="#" className="hover:text-teal transition">Search</a>
             {user && <Link href="/chat" className="hover:text-teal transition">Messages</Link>}
             {role === 'landlord' && <Link href="/dashboard" className="hover:text-teal transition">Dashboard</Link>}
             {role === 'agent' && <Link href="/agent" className="hover:text-teal transition">Agent</Link>}
