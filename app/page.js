@@ -58,6 +58,24 @@ export default function HomePage() {
     fetchBoundary()
   }, [])
 
+  useEffect(() => {
+    if (!navigator?.geolocation) return
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setViewState((current) => ({
+          ...current,
+          longitude: position.coords.longitude,
+          latitude: position.coords.latitude,
+          zoom: 11
+        }))
+      },
+      (error) => {
+        console.warn('Geolocation unavailable:', error.message)
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 600000 }
+    )
+  }, [])
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">

@@ -63,17 +63,14 @@ export default function ChatThreadPage({ params }) {
     setSending(false)
   }
 
-  const isLandlord = thread?.landlord_id === user?.id
-  const role = isLandlord ? 'Landlord' : 'Tenant'
-
   return (
-    <ProtectedRoute allowedRoles={['landlord', 'tenant']}>
+    <ProtectedRoute allowedRoles={['tenant']}>
       <div className="px-4 py-6 lg:px-8">
         <div className="rounded-3xl border bg-white p-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h1 className="text-3xl font-semibold">Conversation</h1>
-              <p className="text-sm text-anchorGray">{role} chat for thread {threadId}</p>
+              <p className="text-sm text-anchorGray">Tenant chat for thread {threadId}</p>
             </div>
             <div className="text-sm text-anchorGray">Unit {thread?.unit_id ?? 'default'}</div>
           </div>

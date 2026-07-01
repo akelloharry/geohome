@@ -10,7 +10,6 @@ export default function SignupPage() {
   const [password, setPassword] = useState('')
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
-  const [role, setRole] = useState('tenant')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -26,7 +25,7 @@ export default function SignupPage() {
         data: {
           first_name: firstName,
           last_name: lastName,
-          role
+          role: 'tenant'
         }
       }
     })
@@ -87,18 +86,6 @@ export default function SignupPage() {
           onChange={(e) => setPassword(e.target.value)}
           disabled={loading}
         />
-        <select
-          required
-          className="w-full border px-2 py-1"
-          value={role}
-          onChange={(e) => setRole(e.target.value)}
-          disabled={loading}
-        >
-          <option value="tenant">Tenant</option>
-          <option value="landlord">Landlord</option>
-          <option value="agent">Agent</option>
-          <option value="admin">Admin</option>
-        </select>
         {error && <div className="text-estateRed text-sm">{error}</div>}
         <button
           type="submit"

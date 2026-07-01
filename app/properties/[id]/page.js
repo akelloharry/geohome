@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabaseClient'
 import PropertyCard from '../../../components/PropertyCard'
@@ -13,7 +14,7 @@ export default function PropertyDetail({ params }) {
   const router = useRouter()
   const [property, setProperty] = useState(null)
   const [units, setUnits] = useState([])
-  const [landlord, setLandlord] = useState(null)
+  const [owner, setOwner] = useState(null)
   const { user, profile } = useAuth()
   const [hasPass, setHasPass] = useState(false)
   const [requesting, setRequesting] = useState(false)
@@ -40,8 +41,8 @@ export default function PropertyDetail({ params }) {
     const { data } = await supabase.from('properties').select('*').eq('id', id).single()
     setProperty(data)
     if (data?.landlord_id) {
-      const { data: owner } = await supabase.from('profiles').select('*').eq('id', data.landlord_id).single()
-      setLandlord(owner)
+      const { data: ownerProfile } = await supabase.from('profiles').select('*').eq('id', data.landlord_id).single()
+      setOwner(ownerProfile)
     }
     const { data: unitData } = await supabase.from('units').select('*').eq('property_id', id).order('name', { ascending: true })
     setUnits(unitData || [])
@@ -61,16 +62,11 @@ export default function PropertyDetail({ params }) {
 
   async function fetchThread(unitId = null) {
     if (!user) return null
-    const role = profile?.role || user?.user_metadata?.role
     const baseQuery = supabase.from('chat_threads').select('*')
       .eq('property_id', id)
+      .eq('tenant_id', user.id)
       .order('created_at', { ascending: false })
 
-    const filter = role === 'landlord'
-      ? { landlord_id: user.id }
-      : { tenant_id: user.id }
-
-    baseQuery.match(filter)
     if (unitId) baseQuery.eq('unit_id', unitId)
 
     const { data, error } = await baseQuery.limit(1)
@@ -93,7 +89,7 @@ export default function PropertyDetail({ params }) {
   }
 
   const buySearchPass = async () => {
-    if (!user) return alert('Please login to buy a search pass')
+    if (!user || (profile?.role || user?.user_metadata?.role) !== 'tenant') return alert('Only tenant accounts may buy a search pass.')
     const res = await fetch('/api/mpesa/stkpush', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone: user.user_metadata?.phone || user.email, amount: 200, account: 'search_pass', description: 'GeoHome search pass' }) })
     const json = await res.json()
     if (json?.status) {
@@ -107,7 +103,7 @@ export default function PropertyDetail({ params }) {
   }
 
   const requestViewing = async () => {
-    if (!user) return alert('Please login to request viewing')
+    if (!user || (profile?.role || user?.user_metadata?.role) !== 'tenant') return alert('Only tenant accounts may request a viewing.')
     if (!hasPass) return alert('You need an active search pass to request viewing.')
     setRequesting(true)
     const res = await fetch('/api/viewing-requests', {
@@ -125,7 +121,9 @@ export default function PropertyDetail({ params }) {
   }
 
   const startChat = async (unitId = null) => {
-    if (!user) return alert('Please login to message the landlord')
+    if (!user || (profile?.role || user?.user_metadata?.role) !== 'tenant') {
+      return alert('Only tenant accounts may message the property owner.')
+    }
     const existingThread = await fetchThread(unitId)
     if (existingThread && existingThread.unit_id === unitId) {
       router.push(`/chat/${existingThread.id}`)
@@ -147,7 +145,7 @@ export default function PropertyDetail({ params }) {
 
   if (!property) return <p>Loading...</p>
 
-  const role = profile?.role || user?.user_metadata?.role || 'tenant'
+  const isTenant = (profile?.role || user?.user_metadata?.role) === 'tenant'
   const activePass = hasPass && !loadingPass
   const bookingEnabled = Boolean(bookedDates.length)
 
@@ -217,14 +215,16 @@ export default function PropertyDetail({ params }) {
                       <div>Rent: KES {unit.rent_price || '—'}</div>
                       <div>Deposit: KES {unit.deposit || '—'}</div>
                     </div>
-                    {role === 'tenant' ? (
+                    {isTenant ? (
                       <div className="mt-3 flex flex-wrap gap-2">
                         <button className="rounded-full bg-teal px-4 py-2 text-sm text-white" onClick={() => startChat(unit.id)}>
                           Inquire about this unit
                         </button>
                       </div>
                     ) : (
-                      <div className="mt-3 text-sm text-anchorGray">Login as a tenant to inquire about this unit.</div>
+                      <div className="mt-3 text-sm text-anchorGray">
+                        {user ? 'Only tenant accounts may inquire about this unit.' : <Link href="/login" className="text-teal underline">Login</Link> to inquire about this unit.}
+                      </div>
                     )}
                   </div>
                 ))}
@@ -235,15 +235,14 @@ export default function PropertyDetail({ params }) {
         </div>
 
         <div className="rounded-3xl border bg-white p-6">
-          <h2 className="text-xl font-semibold">Landlord information</h2>
-          {landlord ? (
+          <h2 className="text-xl font-semibold">Owner information</h2>
+          {owner ? (
             <div className="mt-4 space-y-2 text-sm text-anchorGray">
-              <div>Name: {landlord.full_name || 'Unknown'}</div>
-              <div>Phone: {landlord.phone || 'Not available'}</div>
-              <div>Role: {landlord.role || 'landlord'}</div>
+              <div>Name: {owner.full_name || 'Unknown'}</div>
+              <div>Phone: {owner.phone || 'Not available'}</div>
             </div>
           ) : (
-            <div className="mt-4 text-sm text-anchorGray">Landlord details Not available.</div>
+            <div className="mt-4 text-sm text-anchorGray">Owner details not available.</div>
           )}
         </div>
       </div>
@@ -253,7 +252,7 @@ export default function PropertyDetail({ params }) {
           <PropertyCard property={property} />
         </div>
 
-        {role === 'tenant' && (
+        {isTenant && (
           <div className="rounded-3xl border bg-white p-6 space-y-3">
             <h2 className="text-xl font-semibold">Tenant actions</h2>
             {!activePass ? (
@@ -265,7 +264,7 @@ export default function PropertyDetail({ params }) {
               {requesting ? 'Requesting…' : 'Request viewing'}
             </button>
             <button className="w-full rounded-full bg-white border border-teal px-4 py-3 text-teal" onClick={startChat}>
-              {thread ? 'Open conversation' : 'Message landlord'}
+              {thread ? 'Open conversation' : 'Message owner'}
             </button>
             {!activePass && <p className="text-sm text-anchorGray">A valid pass is required before requesting a viewing.</p>}
           </div>

@@ -25,39 +25,17 @@ export default function LoginPage() {
         return
       }
 
-      // Fetch role from profiles
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', data.user.id)
-        .single()
-
-      if (profileError) {
-        setError('Could not retrieve user role. Please contact support.')
+      const role = data?.user?.user_metadata?.role
+      if (role && role !== 'tenant') {
+        await supabase.auth.signOut()
+        setError('Only tenant accounts can sign in here.')
         setLoading(false)
         return
       }
 
-      // Determine target URL
-      let target = '/'
-      switch (profile.role) {
-        case 'landlord':
-          target = '/dashboard'
-          break
-        case 'agent':
-          target = '/agent'
-          break
-        case 'admin':
-          target = '/admin'
-          break
-        default:
-          target = '/'
-      }
-
-      // Wait a moment for auth state to update, then navigate
       await new Promise(resolve => setTimeout(resolve, 100))
       setLoading(false)
-      router.push(target)
+      router.push('/')
     } catch (err) {
       setError('An unexpected error occurred')
       setLoading(false)

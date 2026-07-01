@@ -19,8 +19,7 @@ export default function ChatPage() {
 
   async function fetchThreads() {
     setLoadingThreads(true)
-    const role = profile?.role || user.user_metadata?.role
-    const filter = role === 'landlord' ? { landlord_id: user.id } : { tenant_id: user.id }
+    const filter = { tenant_id: user.id }
     const { data, error } = await supabase.from('chat_threads').select('*, chat_messages(id, read_at)').match(filter).order('created_at', { ascending: false })
     if (error) {
       console.error(error)
@@ -33,11 +32,11 @@ export default function ChatPage() {
   }
 
   return (
-    <ProtectedRoute allowedRoles={['landlord', 'tenant']}>
+    <ProtectedRoute allowedRoles={['tenant']}>
       <div className="space-y-6 px-4 py-6 lg:px-8">
         <div className="rounded-3xl border bg-white p-6">
           <h1 className="text-3xl font-semibold">Messages</h1>
-          <p className="text-sm text-anchorGray mt-2">Your active chat threads with tenants and landlords.</p>
+          <p className="text-sm text-anchorGray mt-2">Your active conversations.</p>
         </div>
 
         <div className="grid gap-4">

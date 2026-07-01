@@ -5,9 +5,8 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '../context/AuthContext'
 
 export default function Navbar() {
-  const { user, profile, signOut } = useAuth()
+  const { user, signOut } = useAuth()
   const router = useRouter()
-  const role = profile?.role ?? user?.user_metadata?.role
 
   return (
     <nav className="w-full bg-white shadow-sm">
@@ -20,9 +19,6 @@ export default function Navbar() {
             <a href="#" className="hover:text-teal transition">Map</a>
             <a href="#" className="hover:text-teal transition">Search</a>
             {user && <Link href="/chat" className="hover:text-teal transition">Messages</Link>}
-            {role === 'landlord' && <Link href="/dashboard" className="hover:text-teal transition">Dashboard</Link>}
-            {role === 'agent' && <Link href="/agent" className="hover:text-teal transition">Agent</Link>}
-            {role === 'admin' && <Link href="/admin" className="hover:text-teal transition">Admin</Link>}
           </div>
         </div>
 
