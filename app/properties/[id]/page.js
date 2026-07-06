@@ -150,9 +150,9 @@ export default function PropertyDetail({ params }) {
   const bookingEnabled = Boolean(bookedDates.length)
 
   return (
-    <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.7fr_0.9fr]">
-      <div className="space-y-4">
-        <div className="rounded-3xl overflow-hidden border bg-white">
+    <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.7fr_0.9fr]">
+      <div className="space-y-6">
+        <div className="overflow-hidden rounded-[32px] border border-pale-steel bg-white shadow-xl shadow-slate-900/10">
           {
             (() => {
               const lng = property.lng ?? property.longitude ?? (property.location && property.location.coordinates ? property.location.coordinates[0] : 34.7617)
@@ -168,19 +168,19 @@ export default function PropertyDetail({ params }) {
           ))}
         </div>
 
-        <div className="rounded-3xl border bg-white p-6">
+        <div className="rounded-[32px] border border-pale-steel bg-white p-6 shadow-xl shadow-slate-900/10">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-semibold">{property.title || 'Property details'}</h1>
-              <p className="text-sm text-anchorGray mt-2">{property.address || 'No address available'}</p>
+              <h1 className="text-3xl font-heading font-black text-deep-maritime">{property.title || 'Property details'}</h1>
+              <p className="mt-2 text-sm text-anchor-gray">{property.address || 'No address available'}</p>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-bold">KES {property.price || '—'}</div>
-              <div className="text-sm text-anchorGray">Deposit: KES {property.deposit || '0'}</div>
+              <div className="text-2xl font-bold text-official-teal">KES {property.price || '—'}</div>
+              <div className="text-sm text-anchor-gray">Deposit: KES {property.deposit || '0'}</div>
             </div>
           </div>
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-2 text-sm text-anchorGray">
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 text-sm text-anchor-gray">
             <div>Type: {property.property_type || '—'}</div>
             <div>Bedrooms: {property.bedrooms ?? '—'}</div>
             <div>Bathrooms: {property.bathrooms ?? '—'}</div>
@@ -194,8 +194,8 @@ export default function PropertyDetail({ params }) {
           </div>
         </div>
 
-        <div className="rounded-3xl border bg-white p-6">
-          <h2 className="text-xl font-semibold">Units</h2>
+        <div className="rounded-[32px] border border-pale-steel bg-white p-6 shadow-xl shadow-slate-900/10">
+          <h2 className="text-xl font-heading font-black text-deep-maritime">Units</h2>
           {units.length ? (
             <div className="mt-4 grid gap-4">
               {units
@@ -236,12 +236,12 @@ export default function PropertyDetail({ params }) {
                 ))}
             </div>
           ) : (
-            <p className="mt-4 text-sm text-anchorGray">No individual units listed for this property.</p>
+            <p className="mt-4 text-sm text-anchor-gray">No individual units listed for this property.</p>
           )}
         </div>
 
-        <div className="rounded-3xl border bg-white p-6">
-          <h2 className="text-xl font-semibold">Owner information</h2>
+        <div className="rounded-[32px] border border-pale-steel bg-white p-6 shadow-xl shadow-slate-900/10">
+          <h2 className="text-xl font-heading font-black text-deep-maritime">Owner information</h2>
           {owner ? (
             <div className="mt-4 space-y-2 text-sm text-anchorGray">
               <div>Name: {owner.full_name || 'Unknown'}</div>
@@ -253,14 +253,14 @@ export default function PropertyDetail({ params }) {
         </div>
       </div>
 
-      <aside className="space-y-4">
-        <div className="rounded-3xl border bg-white p-6">
+      <aside className="space-y-6">
+        <div className="rounded-[32px] border border-pale-steel bg-white p-6 shadow-xl shadow-slate-900/10">
           <PropertyCard property={property} />
         </div>
 
         {isTenant && (
-          <div className="rounded-3xl border bg-white p-6 space-y-3">
-            <h2 className="text-xl font-semibold">Tenant actions</h2>
+          <div className="rounded-[32px] border border-pale-steel bg-white p-6 space-y-3 shadow-xl shadow-slate-900/10">
+            <h2 className="text-xl font-heading font-black text-deep-maritime">Tenant actions</h2>
             {!activePass ? (
               <button className="w-full rounded-full bg-official-teal px-4 py-3 text-white" onClick={buySearchPass}>Buy Search Pass (KES 200)</button>
             ) : (
@@ -277,7 +277,7 @@ export default function PropertyDetail({ params }) {
         )}
 
         {bookingEnabled && (
-          <div className="rounded-3xl border bg-white p-6">
+          <div className="rounded-[32px] border border-pale-steel bg-white p-6 shadow-xl shadow-slate-900/10">
             <AvailabilityCalendar bookedDates={bookedDates} onToggleDate={() => {}} />
             <p className="mt-3 text-sm text-anchorGray">Availability is informational only.</p>
           </div>

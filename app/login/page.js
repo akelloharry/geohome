@@ -43,13 +43,16 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="max-w-md mx-auto">
-      <h2 className="text-2xl mb-4">Login</h2>
-      <form onSubmit={handleLogin} className="space-y-3">
+    <div className="mx-auto flex min-h-[70vh] max-w-md items-center justify-center px-4 py-10">
+      <div className="w-full rounded-[32px] border border-pale-steel bg-white p-8 shadow-xl shadow-slate-900/10">
+        <div className="text-sm font-semibold uppercase tracking-[0.3em] text-official-teal">Welcome back</div>
+        <h2 className="mt-3 text-3xl font-heading font-black text-deep-maritime">Login to GeoHome Kenya</h2>
+        <p className="mt-3 text-sm text-anchor-gray">Access your dashboard, view listings, and manage tenant activity.</p>
+        <form onSubmit={handleLogin} className="mt-6 space-y-4">
         <input
           required
           type="email"
-          className="w-full border px-2 py-1"
+          className="w-full rounded-2xl border border-pale-steel bg-cloud-white px-4 py-3 text-sm text-deep-maritime outline-none focus:border-official-teal"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -58,7 +61,7 @@ export default function LoginPage() {
         <input
           required
           type="password"
-          className="w-full border px-2 py-1"
+          className="w-full rounded-2xl border border-pale-steel bg-cloud-white px-4 py-3 text-sm text-deep-maritime outline-none focus:border-official-teal"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -68,14 +71,15 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="bg-official-teal text-white px-4 py-2 rounded disabled:opacity-50 w-full"
+          className="w-full rounded-full bg-official-teal px-4 py-3 text-sm font-semibold text-white transition hover:bg-muted-teal disabled:opacity-50"
         >
           {loading ? 'Logging in...' : 'Login'}
         </button>
       </form>
-      <p className="text-sm text-anchor-gray mt-4">
-        Don't have an account? <a href="/signup" className="text-official-teal">Sign up</a>
-      </p>
+        <p className="mt-5 text-sm text-anchor-gray">
+          Don't have an account? <a href="/signup" className="font-semibold text-official-teal">Sign up</a>
+        </p>
+      </div>
     </div>
   )
 }

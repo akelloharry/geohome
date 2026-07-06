@@ -47,13 +47,16 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="max-w-md mx-auto">
-      <h2 className="text-2xl mb-4">Sign up</h2>
-      <form onSubmit={handleSubmit} className="space-y-3">
+    <div className="mx-auto flex min-h-[70vh] max-w-md items-center justify-center px-4 py-10">
+      <div className="w-full rounded-[32px] border border-pale-steel bg-white p-8 shadow-xl shadow-slate-900/10">
+        <div className="text-sm font-semibold uppercase tracking-[0.3em] text-official-teal">Create account</div>
+        <h2 className="mt-3 text-3xl font-heading font-black text-deep-maritime">Join GeoHome Kenya</h2>
+        <p className="mt-3 text-sm text-anchor-gray">Sign up as a tenant to manage your search pass and explore listings.</p>
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <input
           required
           type="text"
-          className="w-full border px-2 py-1"
+          className="w-full rounded-2xl border border-pale-steel bg-cloud-white px-4 py-3 text-sm text-deep-maritime outline-none focus:border-official-teal"
           placeholder="First name"
           value={firstName}
           onChange={(e) => setFirstName(e.target.value)}
@@ -62,7 +65,7 @@ export default function SignupPage() {
         <input
           required
           type="text"
-          className="w-full border px-2 py-1"
+          className="w-full rounded-2xl border border-pale-steel bg-cloud-white px-4 py-3 text-sm text-deep-maritime outline-none focus:border-official-teal"
           placeholder="Last name"
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
@@ -71,7 +74,7 @@ export default function SignupPage() {
         <input
           required
           type="email"
-          className="w-full border px-2 py-1"
+          className="w-full rounded-2xl border border-pale-steel bg-cloud-white px-4 py-3 text-sm text-deep-maritime outline-none focus:border-official-teal"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -80,7 +83,7 @@ export default function SignupPage() {
         <input
           required
           type="password"
-          className="w-full border px-2 py-1"
+          className="w-full rounded-2xl border border-pale-steel bg-cloud-white px-4 py-3 text-sm text-deep-maritime outline-none focus:border-official-teal"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -90,14 +93,15 @@ export default function SignupPage() {
         <button
           type="submit"
           disabled={loading}
-          className="bg-official-teal text-white px-4 py-2 rounded disabled:opacity-50 w-full"
+          className="w-full rounded-full bg-official-teal px-4 py-3 text-sm font-semibold text-white transition hover:bg-muted-teal disabled:opacity-50"
         >
           {loading ? 'Creating account...' : 'Create account'}
         </button>
       </form>
-      <p className="text-sm text-anchor-gray mt-4">
-        Already have an account? <a href="/login" className="text-official-teal">Log in</a>
-      </p>
+        <p className="mt-5 text-sm text-anchor-gray">
+          Already have an account? <a href="/login" className="font-semibold text-official-teal">Log in</a>
+        </p>
+      </div>
     </div>
   )
 }
