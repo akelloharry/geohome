@@ -240,8 +240,8 @@ export default function HomePage() {
           </nav>
         </header>
 
-        <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 py-8 sm:py-12 lg:py-16">
-          <div className="max-w-3xl rounded-[32px] border border-white/20 bg-cloud-white/10 p-6 shadow-2xl shadow-slate-950/30 backdrop-blur-xl sm:p-8">
+        <main className="mx-auto flex min-h-[70vh] w-full max-w-6xl flex-1 items-center py-8 sm:py-12 lg:py-16">
+          <div className="w-full max-w-3xl rounded-[32px] border border-white/20 bg-cloud-white/10 p-6 shadow-2xl shadow-slate-950/30 backdrop-blur-xl sm:p-8">
             <div className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.32em] text-cloud-white">
               GeoHome verified rentals in Kisumu
             </div>

@@ -1,12 +1,15 @@
 "use client"
 
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '../context/AuthContext'
 
 export default function Navbar() {
   const { user, signOut } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
+
+  if (pathname === '/') return null
 
   return (
     <nav className="w-full bg-cloud-white shadow-sm border-b border-pale-steel">
