@@ -1,0 +1,13 @@
+   ▲ Next.js 14.0.0
+
+   Creating an optimized production build ...
+uncaughtException Error: . is neither a posix nor a windows path, and there is no 'join' method defined in the file system
+    at join (c:\Users\akell\Desktop\GeoHome\node_modules\next\dist\compiled\webpack\bundle5.js:28:1369027)
+    at c:\Users\akell\Desktop\GeoHome\node_modules\next\dist\compiled\webpack\bundle5.js:28:293178
+    at arrayEachIndex (c:\Users\akell\Desktop\GeoHome\node_modules\next\dist\compiled\neo-async\async.js:1:7165)
+    at Object.map (c:\Users\akell\Desktop\GeoHome\node_modules\next\dist\compiled\neo-async\async.js:1:9971)
+    at Array.<anonymous> (c:\Users\akell\Desktop\GeoHome\node_modules\next\dist\compiled\webpack\bundle5.js:28:293153)
+    at runCallbacks (c:\Users\akell\Desktop\GeoHome\node_modules\next\dist\compiled\webpack\bundle5.js:1:168123)
+    at c:\Users\akell\Desktop\GeoHome\node_modules\next\dist\compiled\webpack\bundle5.js:1:170035
+    at c:\Users\akell\Desktop\GeoHome\node_modules\next\dist\compiled\webpack\bundle5.js:1:269268
+    at FSReqCallback.oncomplete (node:fs:185:23)

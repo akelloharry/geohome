@@ -1,0 +1,4 @@
+   ▲ Next.js 14.0.0
+
+   Creating an optimized production build ...
+ ⨯ page.js doesn't have a root layout. To fix this error, make sure every page has a root layout.
