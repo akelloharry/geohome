@@ -2,13 +2,13 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import mapboxgl from 'mapbox-gl'
 import { supabase } from '../../../lib/supabaseClient'
 import { checkPassStatus } from '../../../lib/pass'
 import Modal from '../../../components/Modal'
 import { useAuth } from '../../../context/AuthContext'
 
-mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || ''
+// `mapbox-gl` is dynamically imported inside the MiniMap component
+// to avoid server-side bundling issues during Next.js build.
 
 function ArrowLeftIcon(props) {
   return (
@@ -108,24 +108,38 @@ function MiniMap({ coordinates }) {
   useEffect(() => {
     if (!containerRef.current || !coordinates) return
 
-    const [lng, lat] = coordinates
-    const map = new mapboxgl.Map({
-      container: containerRef.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
-      center: [lng, lat],
-      zoom: 13,
-      interactive: false,
-      attributionControl: false,
-      dragPan: false,
-      scrollZoom: false,
-      doubleClickZoom: false,
-      touchZoomRotate: false,
-      keyboard: false,
-    })
+    let map
+    let cancelled = false
 
-    new mapboxgl.Marker({ color: '#2C6E5C' }).setLngLat([lng, lat]).addTo(map)
+    ;(async () => {
+      try {
+        const mapboxModule = await import('mapbox-gl')
+        const mapbox = mapboxModule.default || mapboxModule
+        mapbox.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || ''
+        if (cancelled) return
 
-    return () => map.remove()
+        const [lng, lat] = coordinates
+        map = new mapbox.Map({
+          container: containerRef.current,
+          style: 'mapbox://styles/mapbox/streets-v12',
+          center: [lng, lat],
+          zoom: 13,
+          interactive: false,
+          attributionControl: false,
+          dragPan: false,
+          scrollZoom: false,
+          doubleClickZoom: false,
+          touchZoomRotate: false,
+          keyboard: false,
+        })
+
+        new mapbox.Marker({ color: '#2C6E5C' }).setLngLat([lng, lat]).addTo(map)
+      } catch (err) {
+        console.warn('MiniMap failed to load mapbox-gl:', err)
+      }
+    })()
+
+    return () => { cancelled = true; if (map) map.remove() }
   }, [coordinates])
 
   return <div ref={containerRef} className="h-48 w-full overflow-hidden rounded-2xl" />

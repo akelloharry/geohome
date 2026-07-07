@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ['mapbox-gl'],
+  // Temporarily remove transpilePackages to avoid webpack fs/path build issue.
+  // If needed, re-enable with a more specific transpile target later.
 }
 
 module.exports = nextConfig
