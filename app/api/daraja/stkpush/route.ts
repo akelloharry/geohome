@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { rateLimiter } from '../../../../lib/rateLimiter';
 
 const allowedAmounts = [200, 500, 1000];

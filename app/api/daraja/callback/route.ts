@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import supabaseAdmin from '../../../../lib/supabaseAdmin';
 
 function maskPhone(value?: string) {
@@ -66,10 +66,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Database error' }, { status: 500 });
     }
 
-    console.info(`Γ£à Pass created for transaction ${transactionId}, phone ${maskPhone(String(phoneNumber))}`);
+    console.info(`✅ Pass created for transaction ${transactionId}, phone ${maskPhone(String(phoneNumber))}`);
     return NextResponse.json({ success: true });
   }
 
-  console.warn(`Γ¥î Payment failed: ${ResultCode} - ${ResultDesc}`);
+  console.warn(`❌ Payment failed: ${ResultCode} - ${ResultDesc}`);
   return NextResponse.json({ success: false, error: ResultDesc });
 }
