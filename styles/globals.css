@@ -13,12 +13,13 @@ html, body, #__next {
 body {
   margin: 0;
   font-family: 'Open Sans', sans-serif;
-  background-color: #F4F6F9;
-  color: #5B6F82;
+  background-color: var(--cloud-white, #F4F6F9);
+  color: var(--anchor-gray, #5B6F82);
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Merriweather', serif;
+  color: var(--deep-maritime, #1E3A4D);
 }
 
 .marker {
@@ -28,3 +29,13 @@ h1, h2, h3, h4, h5, h6 {
 .mapboxgl-popup-content {
   font-family: 'Open Sans', sans-serif;
 }
+
+/* Utility hero tweaks to better match the target site */
+.hero-overlay {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top left, rgba(30,111,223,0.42), transparent 34%), linear-gradient(135deg, rgba(30,111,223,0.65) 0%, rgba(245,158,11,0.50) 100%);
+}
+
+.font-heading { font-family: Merriweather, serif; }

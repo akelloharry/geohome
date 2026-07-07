@@ -8,8 +8,7 @@ export default function Navbar() {
   const { user, signOut } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
-
-  if (pathname === '/') return null
+  
 
   return (
     <nav className="w-full bg-cloud-white shadow-sm border-b border-pale-steel">
